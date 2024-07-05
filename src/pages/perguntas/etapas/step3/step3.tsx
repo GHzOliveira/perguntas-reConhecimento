@@ -150,7 +150,7 @@ const handleSubmit = async () => {
         isOpen={isModalOpen}
         onClose={handleModalCloseAndSubmit}
         title="Pesquisa finalizada"
-        body="Muito obrigado pela sua participação!"
+        body="Somos gratos pela sua participação!"
       />
     </Container>
   );

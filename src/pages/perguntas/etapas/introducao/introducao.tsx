@@ -22,24 +22,23 @@ function Introducao({ nextStep, isCompleted }: IntroProps) {
       <br />
       <br />
       <p>
-        Essa pesquisa trata sobre o modo de sua cooperativa trabalhar.
+        A pesquisa reConhecimento trata sobre Cultura Organizacional.
         <br />
         <br />
-        Ao refletir sobre as afirmações propostas, considere a realidade da sua
-        área de atuação na cooperativa.
+        Ao refletir sobre afirmações propostas, considere como você percebe a realidade e não o modo como você gostaria que fosse.
         <br />
         <br />
-        Não há respostas certas ou erradas, o melhor é sua percepção sincera.
+        Não há respostas certas ou erradas; o melhor é sua percepção sincera.
         <br />
         <br />
-        O questionário é composto por 3 partes, <span style={{fontWeight: 'bold'}}>Filosofia, Estratégia, Método.</span>
+        O questionário é composto por 3 partes e pedimos que responda na sequência. Em geral o tempo de resposta é de apenas 12 minutos.
         <br />
         <br />
         São 5 opções: Discordo plenamente, Discordo, Não concordo nem discordo,
         Concordo e Concordo plenamente. 
         <br />
         <br />
-        Bom trabalho!
+        Por gentileza, responda até o dia 07 de julho. Muito obrigado!
       </p>
       <Divider />
       <Botao

@@ -58,7 +58,7 @@ export const Header = () => {
         align="center"
         justifyContent="space-between"
         padding={["2", "4"]}
-        backgroundColor={"#0AAE4B"}
+        backgroundColor={"#1F7CBF"}
         height={"8rem"}
       >
         <Image
