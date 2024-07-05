@@ -7,6 +7,7 @@ import {
   Tbody,
   Td,
   Button,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import PerguntaComponent from "../renderPerguntas";
 import RespostaComponent from "../renderResposta";
@@ -70,9 +71,11 @@ const handleSubmit = async () => {
     handleSubmit();
   };
 
+  const containerSize = useBreakpointValue({ base: "90%", md: "80%", lg: "70%" });
+  const buttonSize = useBreakpointValue({ base: "sm", md: "md" });
 
   return (
-    <Container maxW="90rem" mt={"2rem"}>
+    <Container  maxW={containerSize} mt={"2rem"}>
       <Table variant="simple" size={"xl"}>
         <Thead>
           <Tr>
@@ -111,11 +114,9 @@ const handleSubmit = async () => {
         </Tbody>
       </Table>
       {isAllAnswered && (
-        <>
-          <Button mt={4} colorScheme="teal" onClick={handleSubmit}>
+          <Button mt={4} colorScheme="teal" onClick={handleSubmit} size={buttonSize}>
             Próxima Etapa
           </Button>
-        </>
       )}
       <CustomModal
         isOpen={isModalOpen}

@@ -7,6 +7,7 @@ import {
   Tbody,
   Td,
   Button,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import PerguntaComponent from "../renderPerguntas";
 import RespostaComponent from "../renderResposta";
@@ -18,10 +19,11 @@ interface Step2Props {
   nextStep: () => void;
 }
 
+
 export function Step2({ nextStep }: Step2Props) {
   const { respostas } = useRespostaStore();
   const [isAllAnswered, setIsAllAnswered] = useState(false);
-
+  
   useEffect(() => {
     const allAnswered = perguntasEtapa2.every(
       (pergunta) => respostas[pergunta.id] !== undefined
@@ -30,9 +32,12 @@ export function Step2({ nextStep }: Step2Props) {
     console.log(respostas);
     setIsAllAnswered(allAnswered);
   }, [respostas]);
+  
+  const containerSize = useBreakpointValue({ base: "90%", md: "80%", lg: "70%" });
+  const buttonSize = useBreakpointValue({ base: "sm", md: "md" });
 
   return (
-    <Container maxW="90rem" mt={"2rem"}>
+    <Container maxW={containerSize} mt={"2rem"}>
       <Table variant="simple" size={"xl"}>
         <Thead>
           <Tr>
@@ -73,6 +78,7 @@ export function Step2({ nextStep }: Step2Props) {
       {isAllAnswered && (
         <Button
           mt={4}
+          size={buttonSize}
           colorScheme="teal"
           onClick={nextStep}
         >
