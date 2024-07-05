@@ -57,7 +57,7 @@ const Identificação = () => {
                 <Input id="nomeCompleto" {...register("nomeCompleto")} />
               </FormControl>
             )}
-            <Button type="submit" bg={"#0AAE4B"} color={"white"} mt={"4rem"}>
+            <Button type="submit" bg={"#1F7CBF"} color={"white"} mt={"4rem"}>
               Iniciar Pesquisa
             </Button>
           </form>
