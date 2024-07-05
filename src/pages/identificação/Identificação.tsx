@@ -11,6 +11,7 @@ import {
   Text,
   Flex,
   Divider,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
@@ -127,9 +128,13 @@ const Identificação = () => {
     loadVisibilitySettings();
   }, [setVisibility]);
 
+  const paddingX = useBreakpointValue({ base: "1rem", md: "20rem" });
+  const marginTop = useBreakpointValue({ base: "2rem", md: "5rem" });
+  const maxW = useBreakpointValue({ base: "90%", md: "lg" });
+
   return (
     <Flex direction={"column"}>
-      <Text mb="5rem" paddingX={"20rem"} mt={"5rem"} fontSize={"lg"}>
+      <Text mb="5rem" paddingX={paddingX} mt={marginTop} fontSize={{ base: "md", md: "lg" }}>
         Receba nossas boas-vindas! Antes de preencher sua pesquisa, gostaríamos
         de um conhecer um pouco mais sobre você. Seus dados são confidenciais e
         serão utilizados para compreendermos o perfil da empresa. Seus
@@ -138,7 +143,7 @@ const Identificação = () => {
       </Text>
       <Divider />
       <Center>
-        <Box w="full" maxW="lg" mt={"5rem"}>
+        <Box w="full" maxW={maxW} mt={"5rem"}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
               {visibility.nomeCompleto && (
