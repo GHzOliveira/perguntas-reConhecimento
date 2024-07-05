@@ -11,6 +11,8 @@ import {
   Th,
   Thead,
   Tr,
+  Container,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { PiUserList } from "react-icons/pi";
@@ -36,8 +38,10 @@ const TelaAdmin = () => {
     setIsModalOpen(true);
   };
 
+  const tableSize = useBreakpointValue({ base: "sm", md: "md" });
+
   return (
-    <Box p={4}>
+    <Container maxW="container.xl" p={4}>
       <Flex
         as="nav"
         align="center"
@@ -45,6 +49,8 @@ const TelaAdmin = () => {
         mb={4}
         bg="gray.200"
         p={4}
+        direction={{ base: "column", md: "row" }}
+        gap={4}
       >
         <Heading size="md">Painel de administração</Heading>
         <Flex>
@@ -57,7 +63,7 @@ const TelaAdmin = () => {
         <Heading size="sm">Usuários</Heading>
         <Table
           variant="simple"
-          size="sm"
+          size={tableSize}
           style={{ maxWidth: "600px", margin: "0 auto" }}
         >
           <Thead>
@@ -105,7 +111,7 @@ const TelaAdmin = () => {
             </Table>
           }
       />
-    </Box>
+    </Container>
   );
 };
 
