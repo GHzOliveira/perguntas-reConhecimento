@@ -66,6 +66,7 @@ export const Header = () => {
           boxSize={"200px"}
           marginLeft={"5rem"}
           onClick={handleNavigateHome}
+          cursor="pointer" 
         />
         {isLoggedIn && isAdmin && (
           <Botao
