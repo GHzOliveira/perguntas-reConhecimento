@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "",
+  baseURL: "https://perguntas-reconhecimento-api-production.up.railway.app",
 });
 
 export const createFilial = async (filial: string, quantidadeColaboradores: number) => {
