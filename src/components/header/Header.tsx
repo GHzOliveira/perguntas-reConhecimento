@@ -57,14 +57,14 @@ export const Header = () => {
         width="full"
         align="center"
         justifyContent="space-between"
-        padding="4"
+        padding={["2", "4"]}
         backgroundColor={"#0AAE4B"}
         height={"8rem"}
       >
         <Image
           src={logo}
-          boxSize={"200px"}
-          marginLeft={"5rem"}
+          boxSize={["150px", "200px"]}
+          marginLeft={["2rem", "5rem"]}
           onClick={handleNavigateHome}
           cursor="pointer" 
         />
@@ -94,8 +94,8 @@ export const Header = () => {
             onClick={onOpen}
             colorScheme="teal"
             bg={"hidden"}
-            size={"lg"}
-            mr="5rem"
+            size={["md", "lg"]}
+            mr={["2rem", "5rem"]}
           >
             Login
           </Botao>
