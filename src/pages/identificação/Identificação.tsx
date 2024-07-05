@@ -42,14 +42,22 @@ const Identificação = () => {
   return (
     <Flex direction={"column"}>
       <Text mb="5rem" paddingX={paddingX} mt={marginTop} fontSize={{ base: "md", md: "lg" }}>
-        Receba nossas boas-vindas! Antes de preencher sua pesquisa, gostaríamos
-        de um conhecer um pouco mais sobre você. Seus dados são confidenciais e
-        serão utilizados para compreendermos o perfil da empresa. Seus
-        resultados individuais não serão compartilhados. Por favor, preencha os
-        campos abaixo e bom trabalho!
+        Receba as nossas boas-vindas!
+        <br/>
+        <br/>
+        Chegou o momento de tirarmos uma fotografia para o "reConhecimento" do momento atual da cultura.
+        <br/>
+        <br/>
+        Antes de iniciarmos, precisamos da sua identificação. Seus dados são confidenciais e as suas percepções individuais não serão compartilhadas.
+        <br/>
+        <br/>
+        Preencha todos os campos abaixo e bom trabalho.
+        <br/>
+        <br/>
+        Caso tenha alguma dúvida, por favor fique à vontade para nos procurar.
       </Text>
       <Center>
-        <Box w="full" maxW={maxW} mt={"5rem"}>
+        <Box w="full" maxW={maxW} mt={"1rem"}>
           <form onSubmit={handleSubmit(onSubmit)}>
             {visibility.nomeCompleto && (
               <FormControl>
