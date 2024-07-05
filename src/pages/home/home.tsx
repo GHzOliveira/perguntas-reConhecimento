@@ -85,7 +85,7 @@ const Home = () => {
           </FormControl>
         </div>
         <div>
-          <Button type="submit" bg={"#0AAE4B"} color={"white"} paddingX={20}>
+          <Button type="submit" bg={"#1F7CBF"} color={"white"} paddingX={20}>
             Adicionar
           </Button>
         </div>
@@ -114,7 +114,7 @@ const Home = () => {
       </Table>
       <Botao
         mt={4}
-        bg={"#0AAE4B"}
+        bg={"#1F7CBF"}
         onClick={onOpen}
         isDisabled={filiais.length === 0}
       >
@@ -148,7 +148,7 @@ const Home = () => {
             <Button
               mt={4}
               onClick={handleCopyLink}
-              bg={"#0AAE4B"}
+              bg={"#1F7CBF"}
               color={"white"}
               w={"full"}
             >

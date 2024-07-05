@@ -43,7 +43,7 @@ function Introducao({ nextStep, isCompleted }: IntroProps) {
       <Divider />
       <Botao
         onClick={nextStep}
-        bg={"#0AAE4B"}
+        bg={"#1F7CBF"}
         color={"white"}
         mt={"2rem"}
         paddingX={"5rem"}
