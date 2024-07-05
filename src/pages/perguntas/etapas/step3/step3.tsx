@@ -32,6 +32,10 @@ export function Step3({ nextStep, resetToStep1 }: Step3Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     const allAnswered = perguntasEtapa3.every(
       (pergunta) => respostas[pergunta.id] !== undefined
     );

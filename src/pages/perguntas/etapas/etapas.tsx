@@ -40,7 +40,7 @@ const Questionnaire = () => {
               alignItems: "center",
             }}
           >
-            <Text fontSize={"3rem"}>Parte 1 - Filosofia</Text>
+            <Text fontSize={"3rem"}>Parte 1</Text>
             <Step1 nextStep={nextStep} />
           </div>
         );
@@ -53,7 +53,7 @@ const Questionnaire = () => {
               alignItems: "center",
             }}
           >
-            <Text fontSize={"3rem"}>Parte 2 - Estrégia</Text>
+            <Text fontSize={"3rem"}>Parte 2</Text>
             <Step2 nextStep={nextStep} />
           </div>
         );
@@ -66,7 +66,7 @@ const Questionnaire = () => {
               alignItems: "center",
             }}
           >
-            <Text fontSize={"3rem"}>Parte 3 - Método</Text>
+            <Text fontSize={"3rem"}>Parte 3</Text>
             <Step3 nextStep={nextStep} resetToStep1={resetToStep0} />
           </div>
         );

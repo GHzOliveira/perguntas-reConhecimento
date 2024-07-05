@@ -14,7 +14,7 @@ export interface Pergunta {
     {
       id: 40,
       texto:
-        "Problemas de relacionamento são prontamente conversados e resolvidos pelas pessoas ",
+        "Problemas de relacionamento são prontamente conversados e resolvidos pelas pessoas.",
       ehNegativa: false,
     },
     {

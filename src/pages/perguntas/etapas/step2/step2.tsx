@@ -27,6 +27,10 @@ interface Step2Props {
 export function Step2({ nextStep }: Step2Props) {
   const { respostas } = useRespostaStore();
   const [isAllAnswered, setIsAllAnswered] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   useEffect(() => {
     const allAnswered = perguntasEtapa2.every(
