@@ -127,8 +127,7 @@ const Home = () => {
         body={
           <>
             <p>
-              De acordo com as informações que você cadastrou, sua obra tem 22
-              colaboradores. 
+              De acordo com as informações que você cadastrou
               <br />
               <br />
               Recomendamos que a pesquisa seja respondida por
