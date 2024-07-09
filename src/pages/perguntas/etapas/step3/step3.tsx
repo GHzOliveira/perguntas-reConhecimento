@@ -39,47 +39,47 @@ export function Step3({ nextStep, resetToStep1 }: Step3Props) {
     const allAnswered = perguntasEtapa3.every(
       (pergunta) => respostas[pergunta.id] !== undefined
     );
-    console.log(allAnswered);
-    console.log(respostas);
     setIsAllAnswered(allAnswered);
-    if (allAnswered) {
-      setIsModalOpen(true);
-    }
   }, [respostas]);
 
-const handleSubmit = async () => {
-  const userJson = sessionStorage.getItem("userSession"); 
-  if (userJson) {
-    const user = JSON.parse(userJson); 
-    const userId = user.id; 
-    if (userId) {
-      const { respostas } = useRespostaStore.getState();
-      try {
-        await submitUserResponse(userId, respostas);
-        alert("Respostas enviadas com sucesso!");
-        nextStep();
-      } catch (error) {
-        console.error("Erro ao enviar respostas", error);
-        alert("Erro ao enviar respostas. Tente novamente.");
+  const handleSubmit = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleModalCloseAndSubmit = async () => {
+    const userJson = sessionStorage.getItem("userSession");
+    if (userJson) {
+      const user = JSON.parse(userJson);
+      const userId = user.id;
+      if (userId) {
+        const { respostas } = useRespostaStore.getState();
+        try {
+          await submitUserResponse(userId, respostas);
+          alert("Respostas enviadas com sucesso!");
+          nextStep();
+        } catch (error) {
+          console.error("Erro ao enviar respostas", error);
+          alert("Erro ao enviar respostas. Tente novamente.");
+        }
+      } else {
+        alert("Usuário não encontrado na sessão.");
       }
     } else {
-      alert("Usuário não encontrado na sessão.");
+      alert("Dados do usuário não encontrados na sessão.");
     }
-  } else {
-    alert("Dados do usuário não encontrados na sessão.");
-  }
-};
+    setIsModalOpen(false);
+  };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     resetToStep1();
   };
 
-  const handleModalCloseAndSubmit = () => {
-    handleSubmit();
-  };
-
-  const containerSize = useBreakpointValue({ base: "90%", md: "80%", lg: "70%" });
+  const containerSize = useBreakpointValue({
+    base: "90%",
+    md: "80%",
+    lg: "70%",
+  });
   const buttonSize = useBreakpointValue({ base: "sm", md: "md" });
   const isMobile = useBreakpointValue({ base: true, md: false });
 
@@ -129,7 +129,13 @@ const handleSubmit = async () => {
             <Text as="div" fontWeight="bold">
               <PerguntaComponent pergunta={pergunta} />
             </Text>
-            <RadioGroup onChange={(value) => useRespostaStore.getState().setResposta(pergunta.id, parseInt(value))}>
+            <RadioGroup
+              onChange={(value) =>
+                useRespostaStore
+                  .getState()
+                  .setResposta(pergunta.id, parseInt(value))
+              }
+            >
               <Stack direction="column">
                 <Radio value="1">Discordo plenamente</Radio>
                 <Radio value="2">Discordo</Radio>
@@ -142,9 +148,14 @@ const handleSubmit = async () => {
         ))
       )}
       {isAllAnswered && (
-          <Button mt={4} colorScheme="teal" onClick={handleSubmit} size={buttonSize}>
-            Próxima Etapa
-          </Button>
+        <Button
+          mt={4}
+          colorScheme="teal"
+          onClick={handleSubmit}
+          size={buttonSize}
+        >
+          Próxima Etapa
+        </Button>
       )}
       <CustomModal
         isOpen={isModalOpen}
