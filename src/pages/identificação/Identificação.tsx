@@ -78,9 +78,11 @@ const Identificação = () => {
 
   const { register, handleSubmit } = useForm<FormData>();
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    if (data.dataNascimento) {
-      data.dataNascimento += "T00:00:00.000Z";
-    }
+  if (data.dataNascimento && data.dataNascimento.trim() !== "") {
+    data.dataNascimento += "T00:00:00.000Z";
+  } else {
+    data.dataNascimento = null;
+  }
     const selectedFilial = filiais.find(
       (filial) => filial.id === parseInt(data.filialTrabalho as string)
     );
@@ -92,7 +94,7 @@ const Identificação = () => {
     };
     delete modifiedData.filialTrabalho;
 
-    // Supondo que visibility seja definido corretamente em algum lugar
+    
     const visibleData = Object.keys(data)
       .filter((key) => visibility[key])
       .reduce((obj, key) => {
