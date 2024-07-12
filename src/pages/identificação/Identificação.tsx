@@ -41,11 +41,21 @@ type FormData = {
   educacaoMetanoia: boolean | null;
 };
 
+type ModifiedFormData = Omit<FormData, 'filialTrabalho'> & {
+  filialTrabalho?: number | null;
+  filial?: { connect: { id: number } } | undefined;
+  filialName?: string | null;
+};
+interface Filial {
+  id: number;
+  filial: string;
+}
+
 const Identificação = () => {
   const [countries, setCountries] = useState<ICountry[]>([]);
   const [states, setStates] = useState<IState[]>([]);
   const [cities, setCities] = useState<ICity[]>([]);
-  const [filiais, setFiliais] = useState<any[]>([]);
+  const [filiais, setFiliais] = useState<Filial[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedState, setSelectedState] = useState<string>("");
 
@@ -77,36 +87,38 @@ const Identificação = () => {
   }, [selectedState, selectedCountry]);
 
   const { register, handleSubmit } = useForm<FormData>();
+
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-  if (data.dataNascimento && data.dataNascimento.trim() !== "") {
-    data.dataNascimento += "T00:00:00.000Z";
-  } else {
-    data.dataNascimento = null;
-  }
-    const selectedFilial = filiais.find(
-      (filial) => filial.id === parseInt(data.filialTrabalho as string)
-    );
+    if (data.dataNascimento && data.dataNascimento.trim() !== "") {
+      data.dataNascimento += "T00:00:00.000Z";
+    } else {
+      data.dataNascimento = null;
+    }
+
+    const filialTrabalhoNumber = data.filialTrabalho ? parseInt(data.filialTrabalho.toString()) : null;
+    const selectedFilial = filiais.find(filial => filial.id === filialTrabalhoNumber);
     const filialName = selectedFilial ? selectedFilial.filial : null;
-    const modifiedData = {
+    const modifiedData: ModifiedFormData = {
       ...data,
-      filialTrabalho: data.filialTrabalho ? parseInt(data.filialTrabalho as string) : null,
-      filial: data.filialTrabalho ? { connect: { id: parseInt(data.filialTrabalho as string) } } : undefined,
+      filialTrabalho: filialTrabalhoNumber,
+      filial: filialTrabalhoNumber ? { connect: { id: filialTrabalhoNumber } } : undefined,
+      filialName,
     };
     delete modifiedData.filialTrabalho;
 
-    
-    const visibleData = Object.keys(data)
-      .filter((key) => visibility[key])
-      .reduce((obj, key) => {
-        if (key === "tempoEmpresa") {
-          obj[key] = parseInt(data[key] as string);
-        } else if (key === "educacaoMetanoia") {
-          obj[key] = data[key] === "sim";
-        } else {
-          obj[key] = data[key];
-        }
-        return obj;
-      }, {} as FormData);
+
+    // const visibleData = Object.keys(data)
+    //   .filter((key) => visibility[key])
+    //   .reduce((obj, key) => {
+    //     if (key === "tempoEmpresa") {
+    //       obj[key] = parseInt(data[key] as string);
+    //     } else if (key === "educacaoMetanoia") {
+    //       obj[key] = data[key] === "sim";
+    //     } else {
+    //       obj[key] = data[key];
+    //     }
+    //     return obj;
+    //   }, {} as FormData);
 
     try {
       const createdUser = await createUser(modifiedData);
@@ -179,7 +191,7 @@ const Identificação = () => {
                   <Input
                     id="cpf"
                     {...register("cpf", {
-                      validate: (value) => isValidCPF(value) || "CPF inválido",
+                      validate: (value) => isValidCPF(value || "") || "CPF inválido",
                       setValueAs: (value) => maskCPF(value),
                     })}
                     onChange={(e) => {
