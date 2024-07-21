@@ -9,7 +9,7 @@ interface LayoutProps {
 export const Layout = ({ children }: LayoutProps) => (
     <Box display="flex" flexDirection="column" minHeight="100vh">
         <Header />
-        <Box flex="1">
+        <Box flex="1" bg={'#f8f9fb'}>
             {children}
         </Box>
         <Footer />

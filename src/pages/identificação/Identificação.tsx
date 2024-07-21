@@ -1,4 +1,4 @@
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler } from 'react-hook-form'
 import {
   Box,
   Button,
@@ -11,145 +11,129 @@ import {
   Text,
   Flex,
   Divider,
-  useBreakpointValue,
-} from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+  useBreakpointValue
+} from '@chakra-ui/react'
+import { useEffect, useState } from 'react'
 import {
   createUser,
   fetchAllFiliais,
-  fetchVisibilitySettings,
-} from "../../api/api";
-import { useFormVisibilityStore } from "../../store/store";
-import { maskCPF } from "../../utils/maskCPF";
-import { isValidCPF } from "../../utils/validatorCPF";
-import { City, Country, ICity, ICountry, IState, State } from "country-state-city";
-import { useNavigate } from "react-router-dom";
-
-type FormData = {
-  nomeCompleto: string | null;
-  dataNascimento: string | null;
-  email: string | null;
-  cpf: string | null;
-  tempoEmpresa: number | null;
-  areaTrabalho: string | null;
-  filialTrabalho: number | null;
-  funcao: string | null;
-  genero: string | null;
-  cidade: string | null;
-  estado: string | null;
-  pais: string | null;
-  educacaoMetanoia: boolean | null;
-};
+  fetchVisibilitySettings
+} from '../../api/api'
+import { useFormVisibilityStore } from '../../store/store'
+import { maskCPF } from '../../utils/maskCPF'
+import { isValidCPF } from '../../utils/validatorCPF'
+import {
+  City,
+  Country,
+  ICity,
+  ICountry,
+  IState,
+  State
+} from 'country-state-city'
+import { useNavigate } from 'react-router-dom'
+import { FormData } from '../../types/FormType'
 
 type ModifiedFormData = Omit<FormData, 'filialTrabalho'> & {
-  filialTrabalho?: number | null;
-  filial?: { connect: { id: number } } | undefined;
-  filialName?: string | null;
-};
+  filialTrabalho?: number | null
+  filial?: { connect: { id: number } } | undefined
+  filialName?: string | null
+}
 interface Filial {
-  id: number;
-  filial: string;
+  id: number
+  filial: string
 }
 
 const Identificação = () => {
-  const [countries, setCountries] = useState<ICountry[]>([]);
-  const [states, setStates] = useState<IState[]>([]);
-  const [cities, setCities] = useState<ICity[]>([]);
-  const [filiais, setFiliais] = useState<Filial[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState<string>("");
-  const [selectedState, setSelectedState] = useState<string>("");
+  const [countries, setCountries] = useState<ICountry[]>([])
+  const [states, setStates] = useState<IState[]>([])
+  const [cities, setCities] = useState<ICity[]>([])
+  const [filiais, setFiliais] = useState<Filial[]>([])
+  const [selectedCountry, setSelectedCountry] = useState<string>('')
+  const [selectedState, setSelectedState] = useState<string>('')
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   useEffect(() => {
     const loadFiliais = async () => {
-      const fetchedFiliais = await fetchAllFiliais();
-      setFiliais(fetchedFiliais);
-    };
+      const fetchedFiliais = await fetchAllFiliais()
+      setFiliais(fetchedFiliais)
+    }
 
-    loadFiliais();
-  }, []);
+    loadFiliais()
+  }, [])
 
   useEffect(() => {
-    return setCountries(Country.getAllCountries());
-  }, []);
+    return setCountries(Country.getAllCountries())
+  }, [])
 
   useEffect(() => {
     if (selectedCountry) {
-      setStates(State.getStatesOfCountry(selectedCountry));
+      setStates(State.getStatesOfCountry(selectedCountry))
     }
-  }, [selectedCountry]);
+  }, [selectedCountry])
 
   useEffect(() => {
     if (selectedState) {
-      setCities(City.getCitiesOfState(selectedCountry, selectedState));
+      setCities(City.getCitiesOfState(selectedCountry, selectedState))
     }
-  }, [selectedState, selectedCountry]);
+  }, [selectedState, selectedCountry])
 
-  const { register, handleSubmit } = useForm<FormData>();
+  const { register, handleSubmit } = useForm<FormData>()
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
-    if (data.dataNascimento && data.dataNascimento.trim() !== "") {
-      data.dataNascimento += "T00:00:00.000Z";
+  const onSubmit: SubmitHandler<FormData> = async data => {
+    if (data.dataNascimento && data.dataNascimento.trim() !== '') {
+      data.dataNascimento += 'T00:00:00.000Z'
     } else {
-      data.dataNascimento = null;
+      data.dataNascimento = null
     }
 
-    const filialTrabalhoNumber = data.filialTrabalho ? parseInt(data.filialTrabalho.toString()) : null;
-    const selectedFilial = filiais.find(filial => filial.id === filialTrabalhoNumber);
-    const filialName = selectedFilial ? selectedFilial.filial : null;
-    const modifiedData: ModifiedFormData = {
+    const filialTrabalhoNumber = data.filialTrabalho
+      ? parseInt(data.filialTrabalho.toString())
+      : null
+
+    const modifiedData: Omit<ModifiedFormData, 'filialName'> = {
       ...data,
-      filialTrabalho: filialTrabalhoNumber,
-      filial: filialTrabalhoNumber ? { connect: { id: filialTrabalhoNumber } } : undefined,
-      filialName,
-    };
-    delete modifiedData.filialTrabalho;
-
-
-    // const visibleData = Object.keys(data)
-    //   .filter((key) => visibility[key])
-    //   .reduce((obj, key) => {
-    //     if (key === "tempoEmpresa") {
-    //       obj[key] = parseInt(data[key] as string);
-    //     } else if (key === "educacaoMetanoia") {
-    //       obj[key] = data[key] === "sim";
-    //     } else {
-    //       obj[key] = data[key];
-    //     }
-    //     return obj;
-    //   }, {} as FormData);
+      filialTrabalho: undefined,
+      filial: filialTrabalhoNumber
+        ? { connect: { id: filialTrabalhoNumber } }
+        : undefined
+    }
 
     try {
-      const createdUser = await createUser(modifiedData);
-      console.log("Usuário criado com sucesso!");
-      sessionStorage.setItem('userSession', JSON.stringify(createdUser));
-      navigate('/identificacao/questionario');
+      const createdUser = await createUser(modifiedData)
+      console.log('Usuário criado com sucesso!')
+      sessionStorage.setItem('userSession', JSON.stringify(createdUser))
+      navigate('/identificacao/questionario')
     } catch (error) {
-      console.error("Erro ao criar usuário:", error);
+      console.error('Erro ao criar usuário:', error)
     }
-  };
+  }
 
-  const { visibility, setVisibility } = useFormVisibilityStore();
+  const { visibility, setVisibility } = useFormVisibilityStore()
 
   useEffect(() => {
     const loadVisibilitySettings = async () => {
-      const data = await fetchVisibilitySettings();
+      const data = await fetchVisibilitySettings()
       data.forEach((item: { field: string; isVisible: boolean }) => {
-        setVisibility(item.field, item.isVisible);
-      });
-    };
+        setVisibility(item.field, item.isVisible)
+      })
+    }
 
-    loadVisibilitySettings();
-  }, [setVisibility]);
+    loadVisibilitySettings()
+  }, [setVisibility])
 
-  const paddingX = useBreakpointValue({ base: "1rem", md: "20rem" });
-  const marginTop = useBreakpointValue({ base: "2rem", md: "5rem" });
-  const maxW = useBreakpointValue({ base: "90%", md: "lg" });
+  const paddingX = useBreakpointValue({ base: '1rem', md: '20rem' })
+  const marginTop = useBreakpointValue({ base: '2rem', md: '5rem' })
+  const maxW = useBreakpointValue({ base: '90%', md: 'lg' })
 
   return (
-    <Flex direction={"column"}>
-      <Text mb="5rem" paddingX={paddingX} mt={marginTop} fontSize={{ base: "md", md: "lg" }}>
+    <Flex direction={'column'}>
+      <Text
+        mb="5rem"
+        paddingX={paddingX}
+        mt={marginTop}
+        fontSize={{ base: 'md', md: 'lg' }}
+      >
         Receba nossas boas-vindas! Antes de preencher sua pesquisa, gostaríamos
         de um conhecer um pouco mais sobre você. Seus dados são confidenciais e
         serão utilizados para compreendermos o perfil da empresa. Seus
@@ -158,13 +142,13 @@ const Identificação = () => {
       </Text>
       <Divider />
       <Center>
-        <Box w="full" maxW={maxW} mt={"5rem"}>
+        <Box w="full" maxW={maxW} mt={'5rem'}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
               {visibility.nomeCompleto && (
                 <FormControl>
                   <FormLabel htmlFor="nomeCompleto">Nome completo</FormLabel>
-                  <Input id="nomeCompleto" {...register("nomeCompleto")} />
+                  <Input id="nomeCompleto" {...register('nomeCompleto')} />
                 </FormControl>
               )}
               {visibility.dataNascimento && (
@@ -175,14 +159,14 @@ const Identificação = () => {
                   <Input
                     id="dataNascimento"
                     type="date"
-                    {...register("dataNascimento")}
+                    {...register('dataNascimento')}
                   />
                 </FormControl>
               )}
               {visibility.email && (
                 <FormControl>
                   <FormLabel htmlFor="email">Email</FormLabel>
-                  <Input id="email" type="email" {...register("email")} />
+                  <Input id="email" type="email" {...register('email')} />
                 </FormControl>
               )}
               {visibility.cpf && (
@@ -190,13 +174,14 @@ const Identificação = () => {
                   <FormLabel htmlFor="cpf">CPF</FormLabel>
                   <Input
                     id="cpf"
-                    {...register("cpf", {
-                      validate: (value) => isValidCPF(value || "") || "CPF inválido",
-                      setValueAs: (value) => maskCPF(value),
+                    {...register('cpf', {
+                      validate: value =>
+                        isValidCPF(value || '') || 'CPF inválido',
+                      setValueAs: value => maskCPF(value)
                     })}
-                    onChange={(e) => {
-                      const maskedValue = maskCPF(e.target.value);
-                      e.target.value = maskedValue;
+                    onChange={e => {
+                      const maskedValue = maskCPF(e.target.value)
+                      e.target.value = maskedValue
                     }}
                   />
                 </FormControl>
@@ -206,7 +191,7 @@ const Identificação = () => {
                   <FormLabel htmlFor="tempoEmpresa">
                     Quanto tempo de empresa
                   </FormLabel>
-                  <Input id="tempoEmpresa" {...register("tempoEmpresa")} />
+                  <Input id="tempoEmpresa" {...register('tempoEmpresa')} />
                 </FormControl>
               )}
               {visibility.areaTrabalho && (
@@ -214,7 +199,7 @@ const Identificação = () => {
                   <FormLabel htmlFor="areaTrabalho">
                     Qual área trabalha
                   </FormLabel>
-                  <Input id="areaTrabalho" {...register("areaTrabalho")} />
+                  <Input id="areaTrabalho" {...register('areaTrabalho')} />
                 </FormControl>
               )}
               {visibility.filialTrabalho && (
@@ -222,9 +207,9 @@ const Identificação = () => {
                   <FormLabel htmlFor="filialTrabalho">
                     Qual filial trabalha
                   </FormLabel>
-                  <Select id="filialTrabalho" {...register("filialTrabalho")}>
+                  <Select id="filialTrabalho" {...register('filialTrabalho')}>
                     <option value="">Selecione uma filial...</option>
-                    {filiais.map((filial) => (
+                    {filiais.map(filial => (
                       <option key={filial.id} value={filial.id}>
                         {filial.filial}
                       </option>
@@ -235,13 +220,13 @@ const Identificação = () => {
               {visibility.funcao && (
                 <FormControl>
                   <FormLabel htmlFor="funcao">Qual a sua função?</FormLabel>
-                  <Input id="funcao" {...register("funcao")} />
+                  <Input id="funcao" {...register('funcao')} />
                 </FormControl>
               )}
               {visibility.genero && (
                 <FormControl>
                   <FormLabel htmlFor="genero">Gênero</FormLabel>
-                  <Select id="genero" {...register("genero")}>
+                  <Select id="genero" {...register('genero')}>
                     <option value="feminino">Feminino</option>
                     <option value="masculino">Masculino</option>
                     <option value="outro">Outro</option>
@@ -253,10 +238,10 @@ const Identificação = () => {
                   <FormLabel htmlFor="pais">País</FormLabel>
                   <Select
                     id="pais"
-                    {...register("pais")}
-                    onChange={(e) => setSelectedCountry(e.target.value)}
+                    {...register('pais')}
+                    onChange={e => setSelectedCountry(e.target.value)}
                   >
-                    {countries.map((country) => (
+                    {countries.map(country => (
                       <option key={country.isoCode} value={country.isoCode}>
                         {country.name}
                       </option>
@@ -269,11 +254,11 @@ const Identificação = () => {
                   <FormLabel htmlFor="estado">Estado</FormLabel>
                   <Select
                     id="estado"
-                    {...register("estado")}
-                    onChange={(e) => setSelectedState(e.target.value)}
+                    {...register('estado')}
+                    onChange={e => setSelectedState(e.target.value)}
                     disabled={!selectedCountry}
                   >
-                    {states.map((state) => (
+                    {states.map(state => (
                       <option key={state.isoCode} value={state.isoCode}>
                         {state.name}
                       </option>
@@ -286,10 +271,10 @@ const Identificação = () => {
                   <FormLabel htmlFor="cidade">Cidade</FormLabel>
                   <Select
                     id="cidade"
-                    {...register("cidade")}
+                    {...register('cidade')}
                     disabled={!selectedState}
                   >
-                    {cities.map((city) => (
+                    {cities.map(city => (
                       <option key={city.name} value={city.name}>
                         {city.name}
                       </option>
@@ -304,22 +289,25 @@ const Identificação = () => {
                   Já fez algum processo de educação na Metanoia/Capital
                   Relacional?
                 </FormLabel>
-                <Select id="educacaoMetanoia" {...register("educacaoMetanoia", {
-                  setValueAs: value => value === "true"
-                })}>
+                <Select
+                  id="educacaoMetanoia"
+                  {...register('educacaoMetanoia', {
+                    setValueAs: value => value === 'true'
+                  })}
+                >
                   <option value="true">Sim</option>
                   <option value="false">Não</option>
                 </Select>
               </FormControl>
             )}
-            <Button type="submit" bg={"#1F7CBF"} color={"white"} mt={"4rem"}>
+            <Button type="submit" bg={'#1F7CBF'} color={'white'} mt={'4rem'}>
               Iniciar Pesquisa
             </Button>
           </form>
         </Box>
       </Center>
     </Flex>
-  );
-};
+  )
+}
 
-export default Identificação;
+export default Identificação

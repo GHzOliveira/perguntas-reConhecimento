@@ -17,9 +17,9 @@ const useAdminStore = create<AdminState>(
       logout: () => set({ isLoggedIn: false, isAdmin: false }),
     }),
     {
-      name: "admin-session", // unique name
+      name: "admin-session",
     }
-  ) as StateCreator<AdminState> // Type assertion here
+  ) as StateCreator<AdminState>
 );
 
 export default useAdminStore;
