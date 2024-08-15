@@ -101,7 +101,6 @@ const Identificação = () => {
 
     try {
       const createdUser = await createUser(modifiedData)
-      console.log('Usuário criado com sucesso!')
       sessionStorage.setItem('userSession', JSON.stringify(createdUser))
       navigate('/identificacao/questionario')
     } catch (error) {
@@ -127,7 +126,7 @@ const Identificação = () => {
   const maxW = useBreakpointValue({ base: '90%', md: 'lg' })
 
   return (
-    <Flex direction={'column'}>
+    <Flex direction={'column'} mb={'2rem'}>
       <Text
         mb="5rem"
         paddingX={paddingX}

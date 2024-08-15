@@ -11,82 +11,84 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  Text,
-} from "@chakra-ui/react";
-import PerguntaComponent from "../renderPerguntas";
-import RespostaComponent from "../renderResposta";
-import { perguntasEtapa3 } from "../../../../perguntas/perguntas3";
-import { useState, useEffect } from "react";
-import { useRespostaStore } from "../../../../store/usePerguntaStore";
-import CustomModal from "../../../../components/modal/Modal";
-import { submitUserResponse } from "../../../../api/api";
+  Text
+} from '@chakra-ui/react'
+import PerguntaComponent from '../renderPerguntas'
+import RespostaComponent from '../renderResposta'
+import { perguntasEtapa3 } from '../../../../perguntas/perguntas3'
+import { useState, useEffect } from 'react'
+import { useRespostaStore } from '../../../../store/usePerguntaStore'
+import CustomModal from '../../../../components/modal/Modal'
+import { markFormAsResponded, submitUserResponse } from '../../../../api/api'
+import { useNavigate } from 'react-router-dom'
 
 interface Step3Props {
-  nextStep: () => void;
-  resetToStep1: () => void;
+  nextStep: () => void
+  resetToStep1: () => void
 }
 
 export function Step3({ nextStep, resetToStep1 }: Step3Props) {
-  const { respostas } = useRespostaStore();
-  const [isAllAnswered, setIsAllAnswered] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { respostas } = useRespostaStore()
+  const navigate = useNavigate()
+  const [isAllAnswered, setIsAllAnswered] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    window.scrollTo(0, 0)
+  }, [])
 
   useEffect(() => {
     const allAnswered = perguntasEtapa3.every(
-      (pergunta) => respostas[pergunta.id] !== undefined
-    );
-    console.log(allAnswered);
-    console.log(respostas);
-    setIsAllAnswered(allAnswered);
-    if (allAnswered) {
-      setIsModalOpen(true);
-    }
-  }, [respostas]);
+      pergunta => respostas[pergunta.id] !== undefined
+    )
+    setIsAllAnswered(allAnswered)
+  }, [respostas])
 
-const handleSubmit = async () => {
-  const userJson = sessionStorage.getItem("userSession"); 
-  if (userJson) {
-    const user = JSON.parse(userJson); 
-    const userId = user.id; 
-    if (userId) {
-      const { respostas } = useRespostaStore.getState();
-      try {
-        await submitUserResponse(userId, respostas);
-        alert("Respostas enviadas com sucesso!");
-        nextStep();
-      } catch (error) {
-        console.error("Erro ao enviar respostas", error);
-        alert("Erro ao enviar respostas. Tente novamente.");
+  const handleSubmit = async () => {
+    if (isAllAnswered) {
+      const userJson = sessionStorage.getItem('userSession')
+      if (userJson) {
+        const user = JSON.parse(userJson)
+        const userId = user.id
+        if (userId) {
+          const { respostas } = useRespostaStore.getState()
+          try {
+            await submitUserResponse(userId, respostas)
+            await markFormAsResponded(userId, true)
+            setIsModalOpen(true)
+          } catch (error) {
+            console.error('Erro ao enviar respostas', error)
+            alert('Erro ao enviar respostas. Tente novamente.')
+          }
+        } else {
+          alert('Usuário não encontrado na sessão.')
+        }
+      } else {
+        alert('Dados do usuário não encontrados na sessão.')
       }
     } else {
-      alert("Usuário não encontrado na sessão.");
+      alert('Por favor, responda todas as perguntas antes de prosseguir.')
     }
-  } else {
-    alert("Dados do usuário não encontrados na sessão.");
   }
-};
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    resetToStep1();
-  };
 
   const handleModalCloseAndSubmit = () => {
-    handleSubmit();
-  };
+    window.location.reload()
+    setIsModalOpen(false)
+    navigate('/identificacao/questionario')
+  }
 
-  const containerSize = useBreakpointValue({ base: "90%", md: "80%", lg: "70%" });
-  const buttonSize = useBreakpointValue({ base: "sm", md: "md" });
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const containerSize = useBreakpointValue({
+    base: '90%',
+    md: '80%',
+    lg: '70%'
+  })
+  const buttonSize = useBreakpointValue({ base: 'sm', md: 'md' })
+  const isMobile = useBreakpointValue({ base: true, md: false })
 
   return (
-    <Container maxW={containerSize} mt={"2rem"}>
+    <Container maxW={containerSize} mt={'2rem'}>
       {!isMobile ? (
-        <Table variant="simple" size={"xl"}>
+        <Table variant="simple" size={'xl'}>
           <Thead>
             <Tr>
               <Th textAlign="center" p={2}>
@@ -110,7 +112,7 @@ const handleSubmit = async () => {
             </Tr>
           </Thead>
           <Tbody>
-            {perguntasEtapa3.map((pergunta) => (
+            {perguntasEtapa3.map(pergunta => (
               <Tr key={pergunta.id}>
                 <Td>
                   <PerguntaComponent pergunta={pergunta} />
@@ -124,12 +126,18 @@ const handleSubmit = async () => {
           </Tbody>
         </Table>
       ) : (
-        perguntasEtapa3.map((pergunta) => (
+        perguntasEtapa3.map(pergunta => (
           <Stack key={pergunta.id} mb={4}>
             <Text as="div" fontWeight="bold">
               <PerguntaComponent pergunta={pergunta} />
             </Text>
-            <RadioGroup onChange={(value) => useRespostaStore.getState().setResposta(pergunta.id, parseInt(value))}>
+            <RadioGroup
+              onChange={value =>
+                useRespostaStore
+                  .getState()
+                  .setResposta(pergunta.id, parseInt(value))
+              }
+            >
               <Stack direction="column">
                 <Radio value="1">Discordo plenamente</Radio>
                 <Radio value="2">Discordo</Radio>
@@ -142,9 +150,15 @@ const handleSubmit = async () => {
         ))
       )}
       {isAllAnswered && (
-          <Button mt={4} colorScheme="teal" onClick={handleSubmit} size={buttonSize}>
-            Próxima Etapa
-          </Button>
+        <Button
+          mt={4}
+          mb={4}
+          colorScheme="teal"
+          onClick={handleSubmit}
+          size={buttonSize}
+        >
+          Próxima Etapa
+        </Button>
       )}
       <CustomModal
         isOpen={isModalOpen}
@@ -153,5 +167,5 @@ const handleSubmit = async () => {
         body="Somos gratos pela sua participação!"
       />
     </Container>
-  );
+  )
 }
