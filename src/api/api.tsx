@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000'
+  baseURL: 'https://perguntas-reconhecimento-api-production.up.railway.app'
+  // responseType: 'blob'
 })
 
 export const createFilial = async (
@@ -81,6 +82,23 @@ export const checkFormResponse = async (
 ): Promise<{ respondeuForm: boolean }> => {
   const response = await api.get(`/users/${userId}/respondeuForm`)
   return response.data
+}
+
+export const dowloadExcelIndividual = async (userId: number) => {
+  const response = await api.get(
+    `calculo/calculate-and-generate-excel/${userId}`,
+    {
+      responseType: 'blob'
+    }
+  )
+  return response
+}
+
+export const dowloadTabeladeResultados = async () => {
+  const response = await api.get(`calculo/generate-excel`, {
+    responseType: 'blob'
+  })
+  return response
 }
 
 export default api

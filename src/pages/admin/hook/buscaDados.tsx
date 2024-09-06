@@ -7,7 +7,7 @@ export const useFetchUsers = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchUsersData = async () => {
+    const fetchUsers = async () => {
       try {
         const usersData = await fetchAllUsers()
         setUsers(usersData)
@@ -17,7 +17,8 @@ export const useFetchUsers = () => {
         setLoading(false)
       }
     }
-    fetchUsersData()
+
+    fetchUsers()
   }, [])
 
   return { users, loading }

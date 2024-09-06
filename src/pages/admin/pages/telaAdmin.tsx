@@ -10,11 +10,18 @@ import {
   Thead,
   Tr,
   Container,
-  useBreakpointValue
+  useBreakpointValue,
+  Box,
+  Text
 } from '@chakra-ui/react'
 import { useState } from 'react'
-import { PiUserList } from 'react-icons/pi'
-import { fetchUserResponses } from '../../../api/api'
+import { PiDownload, PiUserList } from 'react-icons/pi'
+import { PiArrowFatLineDown } from 'react-icons/pi'
+import {
+  dowloadExcelIndividual,
+  dowloadTabeladeResultados,
+  fetchUserResponses
+} from '../../../api/api'
 import CustomModal from '../../../components/modal/Modal'
 import { User, UserResponse } from '../interface/user'
 import { useFetchUsers } from '../hook/buscaDados'
@@ -22,45 +29,63 @@ import { UserResponsesTable } from '../components/Table'
 
 const UserTable = ({
   users,
-  onViewResponses
+  onViewResponses,
+  onDownloadExcel
 }: {
   users: User[]
   onViewResponses: (userId: number) => void
+  onDownloadExcel: (userId: number) => void
 }) => {
   const tableWidth = useBreakpointValue({ base: '300px', md: '800px' })
 
   return (
-    <Table
-      variant="simple"
-      size={useBreakpointValue({ base: 'sm', md: 'md' })}
-      bg={'white'}
-      sx={{
-        width: tableWidth,
-        minHeight: '100px',
-        marginLeft: useBreakpointValue({ base: '0', md: '15rem' })
+    <div
+      style={{
+        maxHeight: '600px',
+        overflowY: 'auto'
       }}
     >
-      <Thead>
-        <Tr>
-          <Th>Nome</Th>
-          <Th>Visualizar</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        {users.map(user => (
-          <Tr key={user.id}>
-            <Td>{user.nomeCompleto}</Td>
-            <Td>
-              <IconButton
-                aria-label="View user"
-                icon={<PiUserList />}
-                onClick={() => onViewResponses(user.id)}
-              />
-            </Td>
+      <Table
+        variant="simple"
+        size={useBreakpointValue({ base: 'sm', md: 'md' })}
+        bg={'white'}
+        sx={{
+          width: tableWidth,
+          minHeight: '100px',
+          marginLeft: useBreakpointValue({ base: '0', md: '15rem' })
+        }}
+      >
+        <Thead>
+          <Tr>
+            <Th>Nome</Th>
+            <Th>Visualizar</Th>
+            <Th>Planilha Individual</Th>
           </Tr>
-        ))}
-      </Tbody>
-    </Table>
+        </Thead>
+        <Tbody>
+          {Array.isArray(users) &&
+            users.map(user => (
+              <Tr key={user.id}>
+                <Td>{user.nomeCompleto}</Td>
+                <Td>
+                  <IconButton
+                    aria-label="View user"
+                    icon={<PiUserList />}
+                    onClick={() => onViewResponses(user.id)}
+                  />
+                </Td>
+                <Td>
+                  <IconButton
+                    aria-label="Download user scores"
+                    icon={<PiArrowFatLineDown />}
+                    onClick={() => onDownloadExcel(user.id)}
+                  />
+                </Td>
+              </Tr>
+            ))}
+        </Tbody>
+      </Table>
+    </div>
   )
 }
 
@@ -79,6 +104,34 @@ export default function TabelaUsuarios() {
     }
   }
 
+  const handleDownloadExcel = async (userId: number) => {
+    try {
+      const response = await dowloadExcelIndividual(userId)
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'scores.xlsx')
+      document.body.appendChild(link)
+      link.click()
+    } catch (error) {
+      console.error('Failed to download Excel file', error)
+    }
+  }
+
+  const handleDownloadAllExcel = async () => {
+    try {
+      const response = await dowloadTabeladeResultados()
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'resultados.xlsx')
+      document.body.appendChild(link)
+      link.click()
+    } catch (error) {
+      console.error('Failed to download Excel file', error)
+    }
+  }
+
   if (loading) return <div>Loading...</div>
 
   return (
@@ -86,7 +139,19 @@ export default function TabelaUsuarios() {
       <Container maxW="container.xl" p={4}>
         <VStack spacing={4} align="stretch">
           <Heading size="xl">Usuários</Heading>
-          <UserTable users={users} onViewResponses={handleViewUserResponses} />
+          <Box display="flex" justifyContent="flex-end" mb={4}>
+            <Text pr="1rem">Baixar Tabela de Resultados</Text>
+            <IconButton
+              aria-label="Download all scores"
+              icon={<PiDownload />}
+              onClick={handleDownloadAllExcel}
+            />
+          </Box>
+          <UserTable
+            users={users}
+            onViewResponses={handleViewUserResponses}
+            onDownloadExcel={handleDownloadExcel}
+          />
         </VStack>
         <CustomModal
           isOpen={isModalOpen}
