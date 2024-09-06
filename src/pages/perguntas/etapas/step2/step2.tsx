@@ -11,44 +11,45 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  Text,
-} from "@chakra-ui/react";
-import PerguntaComponent from "../renderPerguntas";
-import RespostaComponent from "../renderResposta";
-import { perguntasEtapa2 } from "../../../../perguntas/perguntas2";
-import { useState, useEffect } from "react";
-import { useRespostaStore } from "../../../../store/usePerguntaStore";
+  Text
+} from '@chakra-ui/react'
+import PerguntaComponent from '../renderPerguntas'
+import RespostaComponent from '../renderResposta'
+import { perguntasEtapa2 } from '../../../../perguntas/perguntas2'
+import { useState, useEffect } from 'react'
+import { useRespostaStore } from '../../../../store/usePerguntaStore'
 
 interface Step2Props {
-  nextStep: () => void;
+  nextStep: () => void
 }
 
-
 export function Step2({ nextStep }: Step2Props) {
-  const { respostas } = useRespostaStore();
-  const [isAllAnswered, setIsAllAnswered] = useState(false);
+  const { respostas } = useRespostaStore()
+  const [isAllAnswered, setIsAllAnswered] = useState(false)
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-  
+    window.scrollTo(0, 0)
+  }, [])
+
   useEffect(() => {
     const allAnswered = perguntasEtapa2.every(
-      (pergunta) => respostas[pergunta.id] !== undefined
-    );
-    console.log(allAnswered);
-    console.log(respostas);
-    setIsAllAnswered(allAnswered);
-  }, [respostas]);
-  
-  const containerSize = useBreakpointValue({ base: "90%", md: "80%", lg: "70%" });
-  const buttonSize = useBreakpointValue({ base: "sm", md: "md" });
-  const isMobile = useBreakpointValue({ base: true, md: false });
+      pergunta => respostas[pergunta.id] !== undefined
+    )
+    setIsAllAnswered(allAnswered)
+  }, [respostas])
+
+  const containerSize = useBreakpointValue({
+    base: '90%',
+    md: '80%',
+    lg: '70%'
+  })
+  const buttonSize = useBreakpointValue({ base: 'sm', md: 'md' })
+  const isMobile = useBreakpointValue({ base: true, md: false })
 
   return (
-    <Container maxW={containerSize} mt={"2rem"}>
+    <Container maxW={containerSize} mt={'2rem'}>
       {!isMobile ? (
-        <Table variant="simple" size={"xl"}>
+        <Table variant="simple" size={'xl'}>
           <Thead>
             <Tr>
               <Th textAlign="center" p={2}>
@@ -72,7 +73,7 @@ export function Step2({ nextStep }: Step2Props) {
             </Tr>
           </Thead>
           <Tbody>
-            {perguntasEtapa2.map((pergunta) => (
+            {perguntasEtapa2.map(pergunta => (
               <Tr key={pergunta.id}>
                 <Td>
                   <PerguntaComponent pergunta={pergunta} />
@@ -86,12 +87,18 @@ export function Step2({ nextStep }: Step2Props) {
           </Tbody>
         </Table>
       ) : (
-        perguntasEtapa2.map((pergunta) => (
+        perguntasEtapa2.map(pergunta => (
           <Stack key={pergunta.id} mb={4}>
             <Text as="div" fontWeight="bold">
               <PerguntaComponent pergunta={pergunta} />
             </Text>
-            <RadioGroup onChange={(value) => useRespostaStore.getState().setResposta(pergunta.id, parseInt(value))}>
+            <RadioGroup
+              onChange={value =>
+                useRespostaStore
+                  .getState()
+                  .setResposta(pergunta.id, parseInt(value))
+              }
+            >
               <Stack direction="column">
                 <Radio value="1">Discordo plenamente</Radio>
                 <Radio value="2">Discordo</Radio>
@@ -106,6 +113,7 @@ export function Step2({ nextStep }: Step2Props) {
       {isAllAnswered && (
         <Button
           mt={4}
+          mb={4}
           size={buttonSize}
           colorScheme="teal"
           onClick={nextStep}
@@ -114,5 +122,5 @@ export function Step2({ nextStep }: Step2Props) {
         </Button>
       )}
     </Container>
-  );
+  )
 }

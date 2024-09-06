@@ -1,19 +1,19 @@
-import create from 'zustand';
+import create from 'zustand'
 
 interface RespostaState {
-  respostas: { [key: number]: number };
-  setResposta: (perguntaId: number, pontuacao: number) => void;
-  resetRespostas: () => void;
+  respostas: { [key: number]: number }
+  setResposta: (perguntaId: number, pontuacao: number) => void
+  resetRespostas: () => void
 }
 
-export const useRespostaStore = create<RespostaState>((set) => ({
+export const useRespostaStore = create<RespostaState>(set => ({
   respostas: {},
   setResposta: (perguntaId, pontuacao) =>
-    set((state) => ({
+    set(state => ({
       respostas: {
         ...state.respostas,
-        [perguntaId]: pontuacao,
-      },
+        [perguntaId]: pontuacao
+      }
     })),
-    resetRespostas: () => set(() => ({ respostas: {} })),
-}));
+  resetRespostas: () => set(() => ({ respostas: {} }))
+}))

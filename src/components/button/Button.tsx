@@ -27,7 +27,6 @@ const Botao: React.FC<BotaoProps> = ({
       color={corTexto}
       size={tamanho}
       width={largura}
-      _hover={{ bg: 'blue.600' }}
       {...props}
     >
       {children}

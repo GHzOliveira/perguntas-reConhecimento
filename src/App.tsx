@@ -1,7 +1,7 @@
-import { CSSReset, ChakraProvider } from "@chakra-ui/react";
-import { BrowserRouter } from "react-router-dom";
-import { theme } from "./theme/tema";
-import { Router } from "./router/Router";
+import { CSSReset, ChakraProvider } from '@chakra-ui/react'
+import { BrowserRouter } from 'react-router-dom'
+import { theme } from './theme/tema'
+import Router from './router/Router'
 
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
         <Router />
       </ChakraProvider>
     </BrowserRouter>
-  );
+  )
 }
 
-export default App;
+export default App

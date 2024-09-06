@@ -1,4 +1,5 @@
 import {
+  Button,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
@@ -9,6 +10,10 @@ import {
   Flex,
   Image,
   Input,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   useDisclosure,
 } from "@chakra-ui/react";
 import logo from "../../assets/logo/logo_capital.svg";
@@ -56,46 +61,41 @@ export const Header = () => {
         as="header"
         width="full"
         align="center"
-        justifyContent="space-between"
-        padding={["2", "4"]}
+        justifyContent="space-around"
         backgroundColor={"#1F7CBF"}
-        height={"8rem"}
+        flexDirection="row"
+        boxShadow="10px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.1)"
       >
         <Image
           src={logo}
-          boxSize={["150px", "200px"]}
-          marginLeft={["2rem", "5rem"]}
+          boxSize={["150px", "120px"]}
+          mr={["2rem", "12rem"]}
           onClick={handleNavigateHome}
-          cursor="pointer" 
+          cursor="pointer"
+          alignSelf={["center", "auto"]}
         />
-        {isLoggedIn && isAdmin && (
-          <Botao
-            onClick={() => navigate("/admin")}
-            colorScheme="blue"
-            bg={"hidden"}
-            size={"lg"}
-            mr="5rem"
-          >
-            Painel do ADM
-          </Botao>
-        )}
         {isLoggedIn && isAdmin ? (
-          <Botao
-            onClick={handleLogout}
-            colorScheme="red"
-            bg={"hidden"}
-            size={"lg"}
-            mr="5rem"
-          >
-            Sair
-          </Botao>
+          <>
+            <Menu>
+              <MenuButton as={Button}>
+                Bem vindo!
+              </MenuButton>
+              <MenuList>
+                <MenuItem onClick={() => navigate("/admin")}>
+                  Painel Administrador
+                </MenuItem>
+                <MenuItem onClick={handleLogout}>Sair</MenuItem>
+              </MenuList>
+            </Menu>
+          </>
         ) : (
           <Botao
             onClick={onOpen}
-            colorScheme="teal"
-            bg={"hidden"}
+            bg={"white"}
+            color={"#1F7CBF"}
             size={["md", "lg"]}
             mr={["2rem", "5rem"]}
+            alignSelf={["center", "auto"]}
           >
             Login
           </Botao>
