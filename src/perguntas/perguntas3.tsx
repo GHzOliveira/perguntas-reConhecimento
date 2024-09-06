@@ -37,7 +37,7 @@ export interface Pergunta {
     {
       id: 44,
       texto:
-        "Ainda falta de incentivo para que a curiosidade se transforme em ideias empreendedoras e estas em projetos concretos.",
+        "Ainda falta incentivo para que a curiosidade se transforme em ideias empreendedoras e estas em projetos concretos.",
       ehNegativa: true,
     },
     {

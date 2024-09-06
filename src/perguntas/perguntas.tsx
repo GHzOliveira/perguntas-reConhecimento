@@ -55,7 +55,7 @@ export const perguntasEtapa1: Pergunta[] = [
   {
     id: 9,
     texto:
-      "Manter a produtividade e alcançar os objetivos de desempenho estabelecidos está acima de tudo.",
+      "Manter a produtividade e alcançar os objetivos de desempenho estabelecidos estão acima de tudo.",
     ehNegativa: true,
   },
   {
