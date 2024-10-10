@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'https://perguntas-reconhecimento-api-production.up.railway.app'
+  baseURL: 'perguntas-reconhecimento-api-production.up.railway.app'
   // responseType: 'blob'
 })
 
@@ -28,6 +28,11 @@ export const deleteFilial = async (id: number) => {
 
 export const createUser = async (userData: FormData) => {
   const response = await api.post('/users', userData)
+  return response.data
+}
+
+export const deleteUser = async (id: number) => {
+  const response = await api.delete(`/users/${id}`)
   return response.data
 }
 

@@ -175,7 +175,7 @@ const Identificação = () => {
                     id="cpf"
                     {...register('cpf', {
                       validate: value =>
-                        isValidCPF(value || '') || 'CPF inválido',
+                        isValidCPF(value ?? '') || 'CPF inválido',
                       setValueAs: value => maskCPF(value)
                     })}
                     onChange={e => {
@@ -190,7 +190,12 @@ const Identificação = () => {
                   <FormLabel htmlFor="tempoEmpresa">
                     Quanto tempo de empresa
                   </FormLabel>
-                  <Input id="tempoEmpresa" {...register('tempoEmpresa')} />
+                  <Select id="tempoEmpresa" {...register('tempoEmpresa')}>
+                    <option value="Menos de 1 ano">Menos de 1 ano</option>
+                    <option value="1 a 3 anos">1 a 3 anos</option>
+                    <option value="5 a 10 anos">5 a 10 anos</option>
+                    <option value="Mais de 10 anos">Mais de 10 anos</option>
+                  </Select>
                 </FormControl>
               )}
               {visibility.areaTrabalho && (
@@ -228,7 +233,7 @@ const Identificação = () => {
                   <Select id="genero" {...register('genero')}>
                     <option value="feminino">Feminino</option>
                     <option value="masculino">Masculino</option>
-                    <option value="outro">Outro</option>
+                    <option value="Prefiro não dizer">Prefiro não dizer</option>
                   </Select>
                 </FormControl>
               )}
