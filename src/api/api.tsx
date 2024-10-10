@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'perguntas-reconhecimento-api-production.up.railway.app'
+  baseURL: 'https://perguntas-reconhecimento-api-production.up.railway.app'
   // responseType: 'blob'
 })
 
