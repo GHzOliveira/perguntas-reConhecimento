@@ -14,7 +14,7 @@ interface FormVisibilityState {
 }
 
 export const useStore = create<StoreState>((set) => ({
-  role: 'USER', // ou 'ADM'
+  role: 'USER', // ou 'ADMIN'
   text: 'Para contribuir com sua experiência, preparamos a pesquisa Reconhecimento. Ela trará informações que vão ajudar a revelar aquilo que você ainda não conseguiu enxergar sobre sua liderança.',
   setText: (newText: string) => set({ text: newText }),
   setRole: (newRole: string) => set({ role: newRole }),
@@ -23,9 +23,10 @@ export const useStore = create<StoreState>((set) => ({
 export const useFormVisibilityStore = create<FormVisibilityState>((set) => ({
   visibility: {
     nomeCompleto: true, dataNascimento: true, email: true, cpf: true,
-    tempoEmpresa: true, areaTrabalho: true, filialTrabalho: true,
+    tempoEmpresa: true, areaTrabalho: true, filialId: true,
     funcao: true, genero: true, cidade: true, estado: true, pais: true,
-    educacaoMetanoia: true
+    educacaoMetanoia: true, escolaridade: true, estadoCivil: true, filhos: true, 
+    quantidadeLivros: true, hobbie: true, tempoCasaTrab: true, modeloTrabalho: true, partGrupos: true,
   },
   toggleVisibility: (field) =>
     set((state) => ({
