@@ -6,7 +6,7 @@ type DashboardProps = {
   children: ReactNode
 }
 
-export default function Dashboard({ children }: DashboardProps) {
+export default function Dashboard({ children }: Readonly<DashboardProps>) {
   return (
     <Flex>
       <Sidebar />

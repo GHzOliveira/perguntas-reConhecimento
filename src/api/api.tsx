@@ -1,8 +1,8 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000'
-  // baseURL: 'https://perguntas-reconhecimento-api-production.up.railway.app'
+  // baseURL: 'http://localhost:3000'
+  baseURL: 'https://perguntas-reconhecimento-api-production.up.railway.app'
   // responseType: 'blob'
 })
 

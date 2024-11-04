@@ -43,10 +43,10 @@ export default function ConfigIdentificacao() {
         alignItems="center"
         width="auto"
       >
-        <>
+        <div>
           <AdminPanel />
-        </>
-        <>
+        </div>
+        <div>
           <GenericForm
             visibility={visibility}
             countries={countries}
@@ -59,7 +59,7 @@ export default function ConfigIdentificacao() {
             setSelectedState={setSelectedState}
             onSubmit={() => {}}
           />
-        </>
+        </div>
       </Flex>
     </Flex>
   )
