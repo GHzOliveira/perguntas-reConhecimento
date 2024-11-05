@@ -8,9 +8,17 @@ export type FormData = {
   dataNascimento: string | null
   email: string | null
   cpf: string | null
+  escolaridade: string | null
+  estadoCivil: string | null
+  filhos: number | null
+  quantidadeLivros: number | null
+  hobbie: string | null
+  tempoCasaTrab: string | null
+  modeloTrabalho: string | null
+  partGrupos: string | null
   tempoEmpresa: number | null
   areaTrabalho: string | null
-  filialTrabalho: number | null
+  filialId: number | null
   funcao: string | null
   genero: string | null
   cidade: string | null
@@ -25,6 +33,14 @@ export interface UserResponse {
   dataNascimento?: string | null
   email?: string
   cpf?: string
+  escolaridade?: string
+  estadoCivil?: string
+  filhos?: number
+  quantidadeLivros?: number
+  hobbie?: string
+  tempoCasaTrab?: string
+  modeloTrabalho?: string
+  partGrupos?: string
   tempoEmpresa?: string
   areaTrabalho?: string
   filialId?: number | null

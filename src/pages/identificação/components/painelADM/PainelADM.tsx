@@ -8,9 +8,10 @@ const AdminPanel: React.FC = () => {
 
   const fields = [
     'nomeCompleto', 'dataNascimento', 'email', 'cpf',
-    'tempoEmpresa', 'areaTrabalho', 'filialTrabalho',
+    'tempoEmpresa', 'areaTrabalho', 'filialId',
     'funcao', 'genero', 'cidade', 'estado', 'pais',
-    'processoEducacao'
+    'processoEducacao', 'escolaridade', 'estadoCivil', 'filhos',
+    'quantidadeLivros', 'hobbie', 'tempoCasaTrab', 'modeloTrabalho', 'partGrupos',
   ];
 
   useEffect(() => {

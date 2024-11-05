@@ -1,5 +1,14 @@
 import { useState } from 'react'
-import { Box, Text, Flex, Container, VStack, Heading } from '@chakra-ui/react'
+import {
+  Box,
+  Text,
+  Flex,
+  Container,
+  VStack,
+  Heading,
+  useToast,
+  Spinner
+} from '@chakra-ui/react'
 import {
   dowloadExcelIndividual,
   dowloadTabeladeResultados
@@ -14,7 +23,9 @@ import UserTable from '../components/UserTable'
 export default function TabelaUsuarios() {
   const { users, loading } = useFetchUsers()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [userResponses, setUserResponses] = useState<UserResponse[]>([])
+  const [userResponses] = useState<UserResponse[]>([])
+  const [isDownloading, setIsDownloading] = useState(false)
+  const toast = useToast()
 
   const handleDownloadExcel = async (userId: number) => {
     try {
@@ -31,6 +42,15 @@ export default function TabelaUsuarios() {
   }
 
   const handleDownloadAllExcel = async () => {
+    setIsDownloading(true)
+    toast({
+      title: 'Preparando download',
+      description: 'Aguarde enquanto geramos seu arquivo...',
+      status: 'info',
+      duration: null,
+      isClosable: false
+    })
+
     try {
       const response = await dowloadTabeladeResultados()
       const url = window.URL.createObjectURL(new Blob([response.data]))
@@ -39,8 +59,27 @@ export default function TabelaUsuarios() {
       link.setAttribute('download', 'resultados.xlsx')
       document.body.appendChild(link)
       link.click()
+
+      // Cleanup
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+
+      toast.closeAll()
+      toast({
+        title: 'Download concluído',
+        status: 'success',
+        duration: 3000
+      })
     } catch (error) {
       console.error('Failed to download Excel file', error)
+      toast({
+        title: 'Erro no download',
+        description: 'Não foi possível baixar o arquivo',
+        status: 'error',
+        duration: 3000
+      })
+    } finally {
+      setIsDownloading(false)
     }
   }
 
@@ -51,9 +90,18 @@ export default function TabelaUsuarios() {
       <Container maxW="container.xl" p={4}>
         <VStack spacing={4} align="stretch">
           <Heading size="xl">Usuários</Heading>
-          <Box display="flex" justifyContent="flex-end" mb={4}>
+          <Box
+            display="flex"
+            justifyContent="flex-end"
+            mb={4}
+            alignItems="center"
+          >
             <Text pr="1rem">Baixar Tabela de Resultados</Text>
-            <DownloadAllButton onClick={handleDownloadAllExcel} />
+            {isDownloading ? (
+              <Spinner size="md" mr={2} />
+            ) : (
+              <DownloadAllButton onClick={handleDownloadAllExcel} />
+            )}
           </Box>
           <UserTable users={users} onDownloadExcel={handleDownloadExcel} />
         </VStack>

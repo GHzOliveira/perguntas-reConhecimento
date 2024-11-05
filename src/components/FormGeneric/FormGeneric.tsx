@@ -97,10 +97,10 @@ export const GenericForm: React.FC<FormFieldsProps> = ({
             <Input id="areaTrabalho" {...register('areaTrabalho')} />
           </FormControl>
         )}
-        {visibility.filialTrabalho && (
+        {visibility.filialId && (
           <FormControl>
-            <FormLabel htmlFor="filialTrabalho">Qual filial trabalha</FormLabel>
-            <Select id="filialTrabalho" {...register('filialTrabalho')}>
+            <FormLabel htmlFor="filialId">Qual filial trabalha</FormLabel>
+            <Select id="filialId" {...register('filialId')}>
               <option value="">Selecione uma filial...</option>
               {filiais.map(filial => (
                 <option key={filial.id} value={filial.id}>
@@ -173,6 +173,50 @@ export const GenericForm: React.FC<FormFieldsProps> = ({
                 </option>
               ))}
             </Select>
+          </FormControl>
+        )}
+        {visibility.quantidadeLivros && (
+          <FormControl>
+            <FormLabel htmlFor="quantidadeLivros">
+              Quantos livros lê por ano?
+            </FormLabel>
+            <Input id="quantidadeLivros" {...register('quantidadeLivros')} />
+          </FormControl>
+        )}
+        {visibility.hobbie && (
+          <FormControl>
+            <FormLabel htmlFor="hobbie">
+              Principal atividade nas horas vagas
+            </FormLabel>
+            <Input id="hobbie" {...register('hobbie')} />
+          </FormControl>
+        )}
+        {visibility.tempoCasaTrab && (
+          <FormControl>
+            <FormLabel htmlFor="tempoCasaTrab">
+              Tempo que leva de casa ao trabalho (00h00m)
+            </FormLabel>
+            <Input id="tempoCasaTrab" {...register('tempoCasaTrab')} />
+          </FormControl>
+        )}
+        {visibility.modeloTrabalho && (
+          <FormControl>
+            <FormLabel htmlFor="modeloTrabalho">
+              Modelo de trabalho?
+            </FormLabel>
+            <Select id="modeloTrabalho" {...register('modeloTrabalho')}>
+              <option value="Presencial">Presencial</option>
+              <option value="Híbrido">Híbrido</option>
+              <option value="Remoto">Remoto</option>
+            </Select>
+          </FormControl>
+        )}
+        {visibility.partGrupos && (
+          <FormControl>
+            <FormLabel htmlFor="partGrupos">
+              Participação em associações ou grupos comunitários?
+            </FormLabel>
+            <Input id="partGrupos" {...register('partGrupos')} />
           </FormControl>
         )}
         {visibility.processoEducacao && (

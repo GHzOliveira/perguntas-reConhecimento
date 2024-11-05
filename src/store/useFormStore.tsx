@@ -13,7 +13,7 @@ export const useFormVisibilityStore = create<FormVisibilityState>(set => ({
     cpf: true,
     tempoEmpresa: true,
     areaTrabalho: true,
-    filialTrabalho: true,
+    filialId: true,
     funcao: true,
     genero: true,
     cidade: true,
