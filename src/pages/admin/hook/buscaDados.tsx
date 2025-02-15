@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { fetchAllUsers } from '../../../api/api'
 import { User } from '../interface/user'
+import { UsersService } from '../../../api/users/users.api'
 
 export const useFetchUsers = () => {
   const [users, setUsers] = useState<User[]>([])
@@ -9,7 +9,7 @@ export const useFetchUsers = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const usersData = await fetchAllUsers()
+        const usersData = await UsersService.fetchAll()
         setUsers(usersData)
       } catch (error) {
         console.error('Failed to fetch users', error)

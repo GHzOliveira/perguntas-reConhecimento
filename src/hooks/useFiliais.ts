@@ -1,18 +1,18 @@
-import { useEffect, useState } from 'react';
-import { Filial } from '../types/FormType';
-import { fetchAllFiliais } from '../api/api';
+import { useEffect, useState } from 'react'
+import { Filial } from '../types/FormType'
+import { FilialService } from '../api/filiais/filiais.api'
 
 export const useFiliais = () => {
-  const [filiais, setFiliais] = useState<Filial[]>([]);
+  const [filiais, setFiliais] = useState<Filial[]>([])
 
   useEffect(() => {
     const loadFiliais = async () => {
-      const fetchedFiliais = await fetchAllFiliais();
-      setFiliais(fetchedFiliais);
-    };
+      const fetchedFiliais = await FilialService.getAll()
+      setFiliais(fetchedFiliais)
+    }
 
-    loadFiliais();
-  }, []);
+    loadFiliais()
+  }, [])
 
-  return filiais;
-};
+  return filiais
+}

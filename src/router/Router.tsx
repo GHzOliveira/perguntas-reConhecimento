@@ -20,7 +20,10 @@ interface RouteItem {
 
 const routes: RouteItem[] = [
   { path: '/', element: <Home /> },
-  { path: '/identificacao', element: <LayoutComAdminPanel /> },
+  {
+    path: '/identificacao/:companyId',
+    element: <LayoutComAdminPanel />
+  },
   { path: '/identificacao/questionario', element: <Questionnaire /> },
   {
     path: '/admin',

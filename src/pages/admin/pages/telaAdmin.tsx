@@ -9,16 +9,13 @@ import {
   useToast,
   Spinner
 } from '@chakra-ui/react'
-import {
-  dowloadExcelIndividual,
-  dowloadTabeladeResultados
-} from '../../../api/api'
 import CustomModal from '../../../components/modal/Modal'
 import { UserResponse } from '../interface/user'
 import { useFetchUsers } from '../hook/buscaDados'
 import { UserResponsesTable } from '../components/Table'
 import DownloadAllButton from '../components/DownloadAllButton'
 import UserTable from '../components/UserTable'
+import { CalcService } from '../../../api/calculo/calc.api'
 
 export default function TabelaUsuarios() {
   const { users, loading } = useFetchUsers()
@@ -29,7 +26,7 @@ export default function TabelaUsuarios() {
 
   const handleDownloadExcel = async (userId: number) => {
     try {
-      const response = await dowloadExcelIndividual(userId)
+      const response = await CalcService.downloadExcelIndividual(userId)
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
@@ -52,7 +49,7 @@ export default function TabelaUsuarios() {
     })
 
     try {
-      const response = await dowloadTabeladeResultados()
+      const response = await CalcService.downloadTabelaResultados()
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url

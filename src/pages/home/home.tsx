@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react'
 import {
   Flex,
   Input,
@@ -11,53 +11,61 @@ import {
   FormControl,
   FormLabel,
   Button,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
-import Botao from "../../components/button/Button";
-import EditableText from "../../components/editableText/Text";
-import { PiTrash } from "react-icons/pi";
-import CustomModal from "../../components/modal/Modal";
-import { createFilial, deleteFilial } from "../../api/api";
+  useDisclosure
+} from '@chakra-ui/react'
+import { useForm } from 'react-hook-form'
+import Botao from '../../components/button/Button'
+import EditableText from '../../components/editableText/Text'
+import { PiTrash } from 'react-icons/pi'
+import CustomModal from '../../components/modal/Modal'
+import { FilialService } from '../../api/filiais/filiais.api'
 
 interface Filial {
-  id: number;
-  filial: string;
-  quantidadeColaboradores: number;
+  id?: number
+  filial: string
+  quantidadeColaboradores: number
+  companyId?: number
+  linkUnico?: string
 }
 
 const Home = () => {
-  const { register, handleSubmit, reset } = useForm();
-  const [filiais, setFiliais] = useState<Filial[]>([]);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const linkToShare = `${window.location.origin}/identificacao`;
+  const { register, handleSubmit, reset } = useForm()
+  const [filiais, setFiliais] = useState<Filial[]>([])
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [linkToShare, setLinkToShare] = useState<string>('')
+  const [tempFiliais, setTempFiliais] = useState<
+    Omit<Filial, 'id' | 'companyId' | 'linkUnico'>[]
+  >([])
 
   const onSubmit = async (data: any) => {
     if (!data.filial.trim() || !data.quantidadeColaboradores) {
-      return;
+      return
     }
-    const quantidadeColaboradores = Number(data.quantidadeColaboradores);
-    try {
-      const newFilial = await createFilial(data.filial, quantidadeColaboradores);
-      setFiliais([...filiais, newFilial]);
-    } catch (error) {
-      console.error("Erro ao criar filial:", error);
-    }
-    reset();
-  };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteFilial(id);
-      setFiliais(filiais.filter((filial) => filial.id !== id));
-    } catch (error) {
-      console.error("Erro ao excluir filial:", error);
+    const newFilial = {
+      filial: data.filial,
+      quantidadeColaboradores: Number(data.quantidadeColaboradores)
     }
-  };
+
+    setTempFiliais([...tempFiliais, newFilial])
+    reset()
+  }
+
+  const handleGenerateLink = async () => {
+    try {
+      const response = await FilialService.createMany({ filiais: tempFiliais })
+      setFiliais(response.filiais)
+      setLinkToShare(response.linkUnico)
+      setTempFiliais([])
+      onOpen()
+    } catch (error) {
+      console.error('Erro ao criar filiais:', error)
+    }
+  }
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(linkToShare);
-  };
+    navigator.clipboard.writeText(linkToShare)
+  }
 
   return (
     <Flex direction="column" p={5} maxWidth="50rem" mx="auto">
@@ -66,13 +74,13 @@ const Home = () => {
         as="form"
         onSubmit={handleSubmit(onSubmit)}
         gap={5}
-        align={"center"}
-        direction={"column"}
+        align={'center'}
+        direction={'column'}
       >
-        <div style={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}>
           <FormControl>
             <FormLabel htmlFor="filial">Filial</FormLabel>
-            <Input id="filial" placeholder="Filial" {...register("filial")} />
+            <Input id="filial" placeholder="Filial" {...register('filial')} />
           </FormControl>
           <FormControl>
             <FormLabel htmlFor="quantidade">Qntd. colaboradores</FormLabel>
@@ -80,12 +88,12 @@ const Home = () => {
               id="quantidade"
               placeholder="Qntd. colaboradores"
               type="number"
-              {...register("quantidadeColaboradores")}
+              {...register('quantidadeColaboradores')}
             />
           </FormControl>
         </div>
         <div>
-          <Button type="submit" bg={"#1F7CBF"} color={"white"} paddingX={20}>
+          <Button type="submit" bg={'#1F7CBF'} color={'white'} paddingX={20}>
             Adicionar
           </Button>
         </div>
@@ -99,12 +107,19 @@ const Home = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {filiais.map((filial, index) => (
+          {tempFiliais.map((filial, index) => (
             <Tr key={index}>
               <Td>{filial.filial}</Td>
               <Td isNumeric>{filial.quantidadeColaboradores}</Td>
               <Td>
-                <Button onClick={() => handleDelete(filial.id)} variant={"ghost"}>
+                <Button
+                  onClick={() => {
+                    const newTempFiliais = [...tempFiliais]
+                    newTempFiliais.splice(index, 1)
+                    setTempFiliais(newTempFiliais)
+                  }}
+                  variant={'ghost'}
+                >
                   <PiTrash />
                 </Button>
               </Td>
@@ -114,11 +129,11 @@ const Home = () => {
       </Table>
       <Botao
         mt={4}
-        bg={"#1F7CBF"}
-        onClick={onOpen}
-        isDisabled={filiais.length === 0}
+        bg={'#1F7CBF'}
+        onClick={handleGenerateLink}
+        isDisabled={tempFiliais.length === 0}
       >
-        Próximo
+        Gerar Link
       </Botao>
       <CustomModal
         isOpen={isOpen}
@@ -130,27 +145,26 @@ const Home = () => {
               De acordo com as informações que você cadastrou
               <br />
               <br />
-              Recomendamos que a pesquisa seja respondida por
-              100% deles!
+              Recomendamos que a pesquisa seja respondida por 100% deles!
               <br />
               <br />
               Abaixo está o link para a pesquisa. Para convidar seus
               colaboradores, basta copiar o link abaixo e enviar para todos
-              através do seu email ou whatsapp. 
+              através do seu email ou whatsapp.
               <br />
               <br />
-              Como o link é o mesmo para todos
-              de sua obra, você pode criar um grupo em seu email ou whatsapp e
-              enviar o link a todos de uma só vez. Ou ainda, pode pedir ajuda
-              para outras pessoas da equipe para dispará-lo.
+              Como o link é o mesmo para todos de sua obra, você pode criar um
+              grupo em seu email ou whatsapp e enviar o link a todos de uma só
+              vez. Ou ainda, pode pedir ajuda para outras pessoas da equipe para
+              dispará-lo.
             </p>
             <Input value={linkToShare} isReadOnly mt={4} />
             <Button
               mt={4}
               onClick={handleCopyLink}
-              bg={"#1F7CBF"}
-              color={"white"}
-              w={"full"}
+              bg={'#1F7CBF'}
+              color={'white'}
+              w={'full'}
             >
               Clique para copiar Link
             </Button>
@@ -158,7 +172,7 @@ const Home = () => {
         }
       />
     </Flex>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home

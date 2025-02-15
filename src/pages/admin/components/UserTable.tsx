@@ -6,8 +6,8 @@ import { PiArrowFatLineDown, PiTrash } from 'react-icons/pi'
 import { User } from '../interface/user'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
-import { deleteUser } from '../../../api/api'
 import { ColumnApi } from '@ag-grid-enterprise/all-modules'
+import { UsersService } from '../../../api/users/users.api'
 
 interface ButtonProps {
   onClick: () => void
@@ -53,7 +53,7 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
     async (userId: number) => {
       try {
         setLoading(true)
-        await deleteUser(userId)
+        await UsersService.delete(userId)
         setUserList(prevUsers => prevUsers.filter(user => user.id !== userId))
         toast({
           title: 'Usuário deletado com sucesso',

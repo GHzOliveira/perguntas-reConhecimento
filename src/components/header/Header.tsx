@@ -14,15 +14,14 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  useDisclosure,
-  UseDisclosureProps
+  useDisclosure
 } from '@chakra-ui/react'
 import logo from '../../assets/logo/logo_capital.svg'
 import { useForm } from 'react-hook-form'
 import Botao from '../button/Button'
 import useAdminStore from '../../store/useAdminStore'
-import { loginAdmin } from '../../api/api'
 import { useNavigate } from 'react-router-dom'
+import { loginAdmin } from '../../api/admin/admin.api'
 
 interface LoginForm {
   login: string
@@ -47,15 +46,14 @@ export const Header = () => {
     const { login: username, password } = data
     try {
       const response = await loginAdmin(username, password)
-      if (response.success) {
-        useAdminStore.getState().login(true)
+      if (response.token) {
+        useAdminStore.getState().login(response.token)
         onClose()
-      } else {
-        alert('Credenciais inválidas.')
+        navigate('/admin')
       }
     } catch (error: any) {
       console.error('Erro ao tentar logar', error)
-      alert('Erro ao tentar logar. Por favor, tente novamente mais tarde.')
+      alert(error.response?.data?.message || 'Credenciais inválidas')
     }
   }
 

@@ -16,9 +16,9 @@ import { useNavigate } from 'react-router-dom'
 import { useFiliais } from '../../hooks/useFiliais'
 import { useCountriesStatesCities } from '../../hooks/useCountriesStatesCities'
 import { useFormVisibilityStore } from '../../store/store'
-import { createUser } from '../../api/api'
 import { FormData } from '../../types/FormType'
 import FormField from '../../components/FormField/formFiel'
+import { UsersService } from '../../api/users/users.api'
 
 const Identificação = () => {
   const {
@@ -42,24 +42,27 @@ const Identificação = () => {
       } else {
         data.dataNascimento = null
       }
-  
+
       if (data.filhos !== null && data.filhos !== undefined) {
         data.filhos = Number(data.filhos)
       }
-  
-      if (data.quantidadeLivros !== null && data.quantidadeLivros !== undefined) {
+
+      if (
+        data.quantidadeLivros !== null &&
+        data.quantidadeLivros !== undefined
+      ) {
         data.quantidadeLivros = Number(data.quantidadeLivros)
       }
-  
+
       if (data.filialId !== null && data.filialId !== undefined) {
         data.filialId = Number(data.filialId)
       }
-  
+
       if (typeof data.educacaoMetanoia === 'string') {
         data.educacaoMetanoia = data.educacaoMetanoia === 'true'
       }
-  
-      const createdUser = await createUser(data)
+
+      const createdUser = await UsersService.create(data)
       sessionStorage.setItem('userSession', JSON.stringify(createdUser))
       navigate('/identificacao/questionario')
     } catch (error) {
@@ -141,7 +144,10 @@ const Identificação = () => {
                           { value: '', label: '' },
                           { value: 'Masculino', label: 'Masculino' },
                           { value: 'Feminino', label: 'Feminino' },
-                          { value: 'Prefiro não dizer', label: 'Prefiro não dizer' },
+                          {
+                            value: 'Prefiro não dizer',
+                            label: 'Prefiro não dizer'
+                          }
                         ]}
                       />
                     )}
@@ -269,7 +275,7 @@ const Identificação = () => {
                           { value: 'Menos de 1 ano', label: 'Menos de 1 ano' },
                           { value: '1 a 3 anos', label: '1 a 3 anos' },
                           { value: '5 a 10 anos', label: '5 a 10 anos' },
-                          { value: 'Mais de 10 anos', label: 'Mais de 10 anos' },
+                          { value: 'Mais de 10 anos', label: 'Mais de 10 anos' }
                         ]}
                       />
                     )}
@@ -282,7 +288,7 @@ const Identificação = () => {
                           { value: '', label: '' },
                           { value: 'Presencial', label: 'Presencial' },
                           { value: 'Híbrido', label: 'Híbrido' },
-                          { value: 'Remoto', label: 'Remoto' },
+                          { value: 'Remoto', label: 'Remoto' }
                         ]}
                       />
                     )}
