@@ -1,15 +1,15 @@
-import { CSSReset, ChakraProvider } from '@chakra-ui/react'
+import { CSSReset } from '@chakra-ui/react'
 import { BrowserRouter } from 'react-router-dom'
-import { theme } from './theme/tema'
+import { SaasProvider } from '@saas-ui/react'
 import Router from './router/Router'
 
 function App() {
   return (
     <BrowserRouter>
-      <ChakraProvider theme={theme}>
-        <CSSReset />
-        <Router />
-      </ChakraProvider>
+        <SaasProvider>
+          <CSSReset />
+          <Router />
+        </SaasProvider>
     </BrowserRouter>
   )
 }

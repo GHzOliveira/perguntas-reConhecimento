@@ -1,17 +1,17 @@
-import create, { StateCreator } from 'zustand'
-import { persist } from 'zustand/middleware'
+import create from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface AdminState {
-  isLoggedIn: boolean
-  isAdmin: boolean
-  token: string | null
-  login: (token: string) => void
-  logout: () => void
+  isLoggedIn: boolean;
+  isAdmin: boolean;
+  token: string | null;
+  login: (token: string) => void;
+  logout: () => void;
 }
 
-const useAdminStore = create<AdminState>(
-  persist(
-    set => ({
+const useAdminStore = create(
+  persist<AdminState>(
+    (set) => ({
       isLoggedIn: false,
       isAdmin: false,
       token: null,
@@ -19,17 +19,20 @@ const useAdminStore = create<AdminState>(
         set({
           isLoggedIn: true,
           isAdmin: true,
-          token
+          token,
         }),
-      logout: () => {
-        localStorage.removeItem('admin_token')
-        set({ isLoggedIn: false, isAdmin: false, token: null })
-      }
+      logout: () =>
+        set({
+          isLoggedIn: false,
+          isAdmin: false,
+          token: null,
+        }),
     }),
     {
-      name: 'admin-session'
+      name: 'admin-storage',
+      getStorage: () => localStorage,
     }
-  ) as StateCreator<AdminState>
-)
+  )
+);
 
-export default useAdminStore
+export default useAdminStore;

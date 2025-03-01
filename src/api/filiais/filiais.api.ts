@@ -4,7 +4,7 @@ export interface Filial {
   id?: number
   filial: string
   quantidadeColaboradores: number
-  companyId?: number
+  companyId: number
   linkUnico?: string
 }
 
@@ -67,4 +67,36 @@ export class FilialService {
       throw error
     }
   }
+
+    /**
+   * Atualiza uma filial existente.
+   */
+    static async update(
+      id: number,
+      filialData: Partial<Pick<Filial, 'filial' | 'quantidadeColaboradores'>>
+    ): Promise<Filial> {
+      try {
+        const response = await api.put(`/filial/${id}`, filialData)
+        return response.data
+      } catch (error) {
+        console.error('Erro ao atualizar filial:', error)
+        throw error
+      }
+    }
+  
+    /**
+     * Adiciona uma nova filial a uma empresa existente.
+     */
+    static async addToCompany(
+      companyId: number,
+      filialData: Omit<Filial, 'id' | 'companyId' | 'linkUnico'>
+    ): Promise<Filial> {
+      try {
+        const response = await api.post(`/filial/company/${companyId}`, filialData)
+        return response.data
+      } catch (error) {
+        console.error('Erro ao adicionar filial à empresa:', error)
+        throw error
+      }
+    }
 }

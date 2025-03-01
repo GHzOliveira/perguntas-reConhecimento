@@ -1,19 +1,15 @@
-// Importações necessárias
-import { ReactNode } from 'react'
-import { Navigate } from 'react-router-dom'
-import useAdminStore from '../store/useAdminStore'
+import { Navigate } from 'react-router-dom';
+import useAdminStore from '../store/useAdminStore';
 
-interface ProtectedRouteProps {
-  children: ReactNode
-}
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const isLoggedIn = useAdminStore((state) => state.isLoggedIn);
+  const token = useAdminStore((state) => state.token);
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isLoggedIn, isAdmin } = useAdminStore()
-
-  if (!isLoggedIn || !isAdmin) {
-    return <Navigate to="/" replace />
+  if (!isLoggedIn || !token) {
+    return <Navigate to="/" replace />;
   }
-  return <>{children}</>
-}
 
-export default ProtectedRoute
+  return <>{children}</>;
+};
+
+export default ProtectedRoute;

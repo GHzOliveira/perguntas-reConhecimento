@@ -94,6 +94,16 @@ export class UsersService {
     }
   }
 
+  static async fetchByCompany(companyId: string): Promise<any[]> {
+    try {
+      const response = await api.get(`/users/company/${companyId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar usuários da empresa:', error);
+      throw error;
+    }
+  }
+
   /**
    * Verifica se o formulário do usuário foi respondido.
    */

@@ -1,75 +1,56 @@
-import React, { Suspense, lazy } from 'react'
+import { Suspense, lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { Layout } from '../layout/DefaultLayout'
 import ProtectedRoute from './ProtectRouter'
+import CompanyProtectedRoute from './CompanyProtectRoute'
+import { UserLayout } from '../layout/UserLayout'
+import AdminLayout from '../pages/admin/layout/layout'
 
 const Home = lazy(() => import('../pages/home/home'))
 const LayoutComAdminPanel = lazy(() => import('../pages/identificação'))
 const Questionnaire = lazy(() => import('../pages/perguntas/etapas/etapas'))
-const TabelaUsuarios = lazy(() => import('../pages/admin/pages/telaAdmin'))
-const ConfigIdentificacao = lazy(
-  () => import('../pages/admin/pages/configIndentificacao')
-)
-const Dashboard = lazy(() => import('../pages/admin/layout/layout'))
+const Dashboard = lazy(() => import('../pages/admin/pages/Dashboard'))
+const UsersPage = lazy(() => import('../pages/admin/pages/telaAdmin'))
+const DynamicForm = lazy(() => import('../pages/admin/pages/DynamicForm'))
+const CompanySelect = lazy(() => import('../pages/admin/pages/CompanySelect'))
 
-interface RouteItem {
-  path: string
-  element: React.ReactNode
-  protected?: boolean
-}
-
-const routes: RouteItem[] = [
-  { path: '/', element: <Home /> },
-  {
-    path: '/identificacao/:companyId',
-    element: <LayoutComAdminPanel />
-  },
-  { path: '/identificacao/questionario', element: <Questionnaire /> },
-  {
-    path: '/admin',
-    element: (
-      <ProtectedRoute>
-        <Dashboard>
-          <TabelaUsuarios />
-        </Dashboard>
-      </ProtectedRoute>
-    ),
-    protected: true
-  },
-  {
-    path: '/admin/identificacao',
-    element: (
-      <ProtectedRoute>
-        <Dashboard>
-          <ConfigIdentificacao />
-        </Dashboard>
-      </ProtectedRoute>
-    ),
-    protected: true
-  }
-]
 
 function Router() {
   return (
     <Suspense fallback={<div>Carregando...</div>}>
-      <Layout>
+      <UserLayout>
         <Routes>
-          {routes.map(({ path, element, protected: isProtected }) => (
-            <Route
-              key={path}
-              path={path}
-              element={
-                isProtected ? (
-                  <ProtectedRoute>{element}</ProtectedRoute>
-                ) : (
-                  element
-                )
-              }
-            />
-          ))}
-          <Route path="*" element={<div>404</div>} />
+          <Route path="/" element={<Home />} />
+          <Route
+            path="/identificacao/:companyId"
+            element={
+              <CompanyProtectedRoute>
+                <LayoutComAdminPanel />
+              </CompanyProtectedRoute>
+            }
+          />
+          <Route path="/identificacao/questionario" element={<Questionnaire />} />
+
+          <Route
+            path="/admin/*"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <Routes>
+                    <Route index element={<Dashboard />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="users" element={<UsersPage />} />
+                    <Route path="dynamic-form" element={<DynamicForm />} />
+                    <Route path="company-select" element={<CompanySelect />} />
+                    <Route path="*" element={<div>404 - Página Admin não encontrada</div>} />
+                  </Routes>
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="*" element={<div>404 - Página não encontrada</div>} />
         </Routes>
-      </Layout>
+      </UserLayout>
     </Suspense>
   )
 }

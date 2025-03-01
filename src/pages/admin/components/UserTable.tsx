@@ -1,12 +1,11 @@
 import { useState, useMemo, useCallback } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community'
-import { IconButton, useToast } from '@chakra-ui/react'
+import { IconButton, useToast, useBreakpointValue } from '@chakra-ui/react'
 import { PiArrowFatLineDown, PiTrash } from 'react-icons/pi'
 import { User } from '../interface/user'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
-import { ColumnApi } from '@ag-grid-enterprise/all-modules'
 import { UsersService } from '../../../api/users/users.api'
 
 interface ButtonProps {
@@ -48,6 +47,9 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
   const [userList, setUserList] = useState<User[]>(users)
   const [loading, setLoading] = useState<boolean>(false)
   const toast = useToast()
+
+  // Define a altura do grid de acordo com o tamanho da tela
+  const gridHeight = useBreakpointValue({ base: '20rem', md: '25rem', lg: '25rem' })
 
   const handleDeleteUser = useCallback(
     async (userId: number) => {
@@ -122,7 +124,7 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
       },
       {
         headerName: 'Ações',
-        field: 'id', // Mudamos para um campo que existe no User
+        field: 'id',
         flex: 1,
         cellRenderer: (params: any) => (
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -140,7 +142,6 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
 
   const onGridReady = useCallback((params: GridReadyEvent) => {
     setGridApi(params.api)
-    // Remova a linha que usa columnApi
     params.api.sizeColumnsToFit()
   }, [])
 
@@ -154,7 +155,12 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
   )
 
   return (
-    <div className="ag-theme-alpine" style={{ height: 600, width: '100%' }}>
+    <div className="ag-theme-alpine" style={{
+      height: gridHeight,
+      width: '100%',
+      maxWidth: '100%',
+      overflowX: 'auto'
+    }}>
       <AgGridReact<User>
         rowData={userList}
         columnDefs={columnDefs}
