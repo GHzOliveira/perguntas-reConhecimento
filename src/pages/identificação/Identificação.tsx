@@ -1,4 +1,6 @@
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useState, useEffect } from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -10,17 +12,42 @@ import {
   Heading,
   useBreakpointValue,
   VStack,
-  Stack
-} from '@chakra-ui/react'
-import { useNavigate } from 'react-router-dom'
-import { useFiliais } from '../../hooks/useFiliais'
-import { useCountriesStatesCities } from '../../hooks/useCountriesStatesCities'
-import { useFormVisibilityStore } from '../../store/store'
-import { FormData } from '../../types/FormType'
-import FormField from '../../components/FormField/formFiel'
-import { UsersService } from '../../api/users/users.api'
+  Spinner,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+} from '@chakra-ui/react';
+import { useFiliais } from '../../hooks/useFiliais';
+import { useCountriesStatesCities } from '../../hooks/useCountriesStatesCities';
+import { FormData } from '../../types/FormType';
+import FormField from '../../components/FormField/formField';
+import { UsersService } from '../../api/users/users.api';
+import { FormBuilderService } from '../../api/formBuilder/formBuilder.api';
+
+interface SchemaField {
+  type: string;
+  title: string;
+  enum?: Array<string | number>;
+  enumNames?: string[];
+  format?: string;
+}
+
+interface SchemaProperties {
+  [key: string]: SchemaField;
+}
+
+interface FormSchema {
+  properties: SchemaProperties;
+  required?: string[];
+}
 
 const Identificação = () => {
+  const { companyId } = useParams<{ companyId: string }>();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [formSchema, setFormSchema] = useState<FormSchema | null>(null);
+  const [formTitle, setFormTitle] = useState<string>('Formulário de Identificação');
+
   const {
     countries,
     states,
@@ -29,50 +56,193 @@ const Identificação = () => {
     setSelectedCountry,
     selectedState,
     setSelectedState
-  } = useCountriesStatesCities()
-  const filiais = useFiliais()
-  const navigate = useNavigate()
-  const { register, handleSubmit } = useForm<FormData>()
-  const { visibility } = useFormVisibilityStore()
+  } = useCountriesStatesCities();
+  
+  const { filiais, isLoading: filiaisLoading } = useFiliais(companyId ? parseInt(companyId) : undefined);
+  const navigate = useNavigate();
+  const { register, handleSubmit } = useForm<FormData>();
+
+  useEffect(() => {
+    const fetchForm = async () => {
+      if (!companyId) {
+        setError('ID da empresa não encontrado na URL');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const response = await FormBuilderService.getFormsByCompanyId(parseInt(companyId));
+        
+        if (!response.success || response.data.length === 0) {
+          setError('Não foi encontrado um formulário para esta empresa');
+          setIsLoading(false);
+          return;
+        }
+
+        const defaultForm = response.data.find(form => form.isDefault);
+        const selectedForm = defaultForm || response.data[0];
+        
+        setFormTitle(selectedForm.name);
+        setFormSchema(selectedForm.formData.schema);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Erro ao carregar formulário:', error);
+        setError('Erro ao carregar o formulário');
+        setIsLoading(false);
+      }
+    };
+
+    fetchForm();
+  }, [companyId]);
 
   const onSubmit: SubmitHandler<FormData> = async data => {
     try {
-      if (data.dataNascimento && data.dataNascimento.trim() !== '') {
-        data.dataNascimento += 'T00:00:00.000Z'
+      const processedData: Record<string, any> = {...data};
+      
+      if (processedData.dataNascimento && processedData.dataNascimento.trim() !== '') {
+        processedData.dataNascimento += 'T00:00:00.000Z';
       } else {
-        data.dataNascimento = null
+        processedData.dataNascimento = null;
       }
 
-      if (data.filhos !== null && data.filhos !== undefined) {
-        data.filhos = Number(data.filhos)
+      ['filhos', 'quantidadeLivros', 'filialId'].forEach(field => {
+        if (processedData[field] !== null && processedData[field] !== undefined) {
+          processedData[field] = Number(processedData[field]);
+        }
+      });
+
+      if (typeof processedData.educacaoMetanoia === 'string') {
+        processedData.educacaoMetanoia = processedData.educacaoMetanoia === 'true';
       }
 
-      if (
-        data.quantidadeLivros !== null &&
-        data.quantidadeLivros !== undefined
-      ) {
-        data.quantidadeLivros = Number(data.quantidadeLivros)
-      }
-
-      if (data.filialId !== null && data.filialId !== undefined) {
-        data.filialId = Number(data.filialId)
-      }
-
-      if (typeof data.educacaoMetanoia === 'string') {
-        data.educacaoMetanoia = data.educacaoMetanoia === 'true'
-      }
-
-      const createdUser = await UsersService.create(data)
-      sessionStorage.setItem('userSession', JSON.stringify(createdUser))
-      navigate('/identificacao/questionario')
+      const createdUser = await UsersService.create(processedData);
+      sessionStorage.setItem('userSession', JSON.stringify(createdUser));
+      navigate('/identificacao/questionario');
     } catch (error) {
-      console.error('Erro ao criar usuário:', error)
+      console.error('Erro ao criar usuário:', error);
     }
+  };
+
+  const paddingX = useBreakpointValue({ base: '1rem', md: '10rem' });
+  const marginTop = useBreakpointValue({ base: '2rem', md: '5rem' });
+  const maxW = useBreakpointValue({ base: '90%', md: '2xl' });
+
+  const groupFieldsBySection = (schema: FormSchema) => {
+    if (!schema || !schema.properties) return {};
+    
+    const sections: Record<string, any[]> = {
+      "Dados Pessoais": [],
+      "Endereço": [],
+      "Empresa": []
+    };
+
+    Object.entries(schema.properties).forEach(([fieldName, fieldSchema]) => {
+      const fieldInfo = {
+        name: fieldName,
+        ...fieldSchema
+      };
+      
+      if (["pais", "estado", "cidade"].includes(fieldName)) {
+        sections["Endereço"].push(fieldInfo);
+      } else if (["filialId", "areaTrabalho", "funcao", "tempoEmpresa", "modeloTrabalho", "tempoCasaTrab", "partGrupos", "educacaoMetanoia"].includes(fieldName)) {
+        sections["Empresa"].push(fieldInfo);
+      } else {
+        sections["Dados Pessoais"].push(fieldInfo);
+      }
+    });
+    
+    return Object.fromEntries(
+      Object.entries(sections).filter(([_, fields]) => fields.length > 0)
+    );
+  };
+
+  const renderFormField = (field: any) => {
+    const fieldName = field.name;
+    const fieldTitle = field.title;
+    const fieldType = field.type;
+    
+    let fieldProps: any = {
+      id: fieldName,
+      label: fieldTitle,
+      register: register
+    };
+
+    if (fieldName === 'filialId') {
+      fieldProps.options = filiais.map(filial => ({
+        value: filial.id,
+        label: filial.filial
+      }));
+      
+      fieldProps.isLoading = filiaisLoading;
+      if (filiais.length === 0 && !filiaisLoading) {
+        fieldProps.placeholder = "Nenhuma filial encontrada para esta empresa";
+      }
+    }
+
+    if (field.format === 'date') {
+      fieldProps.type = 'date';
+    } else if (fieldType === 'number' || fieldType === 'integer') {
+      fieldProps.type = 'number';
+    } else if (fieldType === 'boolean') {
+      fieldProps.type = 'checkbox';
+    } else if (field.enum && field.enum.length) {
+      fieldProps.options = field.enum.map((value: any, index: number) => ({
+        value: value,
+        label: field.enumNames?.[index] || value
+      }));
+    }
+    
+    if (fieldName === 'pais') {
+      fieldProps.options = countries.map(country => ({
+        value: country.isoCode,
+        label: country.name
+      }));
+      fieldProps.onChange = (e: React.ChangeEvent<HTMLSelectElement>) => setSelectedCountry(e.target.value);
+    } else if (fieldName === 'estado') {
+      fieldProps.options = states.map(state => ({
+        value: state.isoCode,
+        label: state.name
+      }));
+      fieldProps.onChange = (e: React.ChangeEvent<HTMLSelectElement>) => setSelectedState(e.target.value);
+      fieldProps.disabled = !selectedCountry;
+    } else if (fieldName === 'cidade') {
+      fieldProps.options = cities.map(city => ({
+        value: city.name,
+        label: city.name
+      }));
+      fieldProps.disabled = !selectedState;
+    } else if (fieldName === 'filialId') {
+      fieldProps.options = filiais.map(filial => ({
+        value: filial.id,
+        label: filial.filial
+      }));
+    }
+    
+    return <FormField key={fieldName} {...fieldProps} />;
+  };
+
+  if (isLoading) {
+    return (
+      <Center height="100vh">
+        <Spinner size="xl" color="#1F7CBF" />
+      </Center>
+    );
   }
 
-  const paddingX = useBreakpointValue({ base: '1rem', md: '10rem' })
-  const marginTop = useBreakpointValue({ base: '2rem', md: '5rem' })
-  const maxW = useBreakpointValue({ base: '90%', md: '2xl' })
+  if (error) {
+    return (
+      <Center height="100vh">
+        <Alert status="error" borderRadius="md" maxW="md">
+          <AlertIcon />
+          <AlertTitle>{error}</AlertTitle>
+        </Alert>
+      </Center>
+    );
+  }
+
+  const sections = formSchema ? groupFieldsBySection(formSchema) : {};
+  const sectionNames = Object.keys(sections);
 
   return (
     <Flex direction={'column'} mb={'2rem'}>
@@ -92,7 +262,7 @@ const Identificação = () => {
       <Center>
         <Box w="full" maxW={maxW} mt={'5rem'}>
           <Heading as="h2" size="lg" mb="1rem" textAlign="center">
-            Formulário de Identificação
+            {formTitle}
           </Heading>
           <Box
             p={8}
@@ -104,219 +274,19 @@ const Identificação = () => {
           >
             <form onSubmit={handleSubmit(onSubmit)}>
               <VStack spacing={8}>
-                <Box w="full">
-                  <Heading as="h3" size="md" mb="1rem">
-                    Dados Pessoais
-                  </Heading>
-                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                    {visibility.nomeCompleto && (
-                      <FormField
-                        id="nomeCompleto"
-                        label="Nome completo"
-                        register={register}
-                      />
-                    )}
-                    {visibility.dataNascimento && (
-                      <FormField
-                        id="dataNascimento"
-                        label="Data de nascimento"
-                        type="date"
-                        register={register}
-                      />
-                    )}
-                    {visibility.email && (
-                      <FormField
-                        id="email"
-                        label="Email"
-                        type="email"
-                        register={register}
-                      />
-                    )}
-                    {visibility.cpf && (
-                      <FormField id="cpf" label="CPF" register={register} />
-                    )}
-                    {visibility.genero && (
-                      <FormField
-                        id="genero"
-                        label="Gênero"
-                        register={register}
-                        options={[
-                          { value: '', label: '' },
-                          { value: 'Masculino', label: 'Masculino' },
-                          { value: 'Feminino', label: 'Feminino' },
-                          {
-                            value: 'Prefiro não dizer',
-                            label: 'Prefiro não dizer'
-                          }
-                        ]}
-                      />
-                    )}
-                    {visibility.estadoCivil && (
-                      <FormField
-                        id="estadoCivil"
-                        label="Estado Civil"
-                        register={register}
-                        options={[
-                          { value: 'Solteiro(a)', label: 'Solteiro(a)' },
-                          { value: 'Casado(a)', label: 'Casado(a)' },
-                          { value: 'Divorciado(a)', label: 'Divorciado(a)' },
-                          { value: 'Viúvo(a)', label: 'Viúvo(a)' }
-                        ]}
-                      />
-                    )}
-                    {visibility.filhos && (
-                      <FormField
-                        id="filhos"
-                        label="Número de filhos"
-                        type="number"
-                        register={register}
-                      />
-                    )}
-                    {visibility.quantidadeLivros && (
-                      <FormField
-                        id="quantidadeLivros"
-                        label="Quantos livros lê por ano?"
-                        type="number"
-                        register={register}
-                      />
-                    )}
-                    {visibility.hobbie && (
-                      <FormField
-                        id="hobbie"
-                        label="Principal atividade nas horas vagas"
-                        register={register}
-                      />
-                    )}
-                  </SimpleGrid>
-                </Box>
-                <Divider />
-                <Box w="full">
-                  <Heading as="h3" size="md" mb="1rem">
-                    Endereço
-                  </Heading>
-                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                    {visibility.pais && (
-                      <FormField
-                        id="pais"
-                        label="País"
-                        register={register}
-                        options={countries.map(country => ({
-                          value: country.isoCode,
-                          label: country.name
-                        }))}
-                        onChange={e => setSelectedCountry(e.target.value)}
-                      />
-                    )}
-                    {visibility.estado && (
-                      <FormField
-                        id="estado"
-                        label="Estado"
-                        register={register}
-                        options={states.map(state => ({
-                          value: state.isoCode,
-                          label: state.name
-                        }))}
-                        onChange={e => setSelectedState(e.target.value)}
-                        disabled={!selectedCountry}
-                      />
-                    )}
-                    {visibility.cidade && (
-                      <FormField
-                        id="cidade"
-                        label="Cidade"
-                        register={register}
-                        options={cities.map(city => ({
-                          value: city.name,
-                          label: city.name
-                        }))}
-                        disabled={!selectedState}
-                      />
-                    )}
-                  </SimpleGrid>
-                </Box>
-                <Divider />
-                <Box w="full">
-                  <Heading as="h3" size="md" mb="1rem">
-                    Empresa
-                  </Heading>
-                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                    {visibility.filialId && (
-                      <FormField
-                        id="filialId"
-                        label="Qual filial trabalha"
-                        register={register}
-                        options={filiais.map(filial => ({
-                          value: filial.id,
-                          label: filial.filial
-                        }))}
-                      />
-                    )}
-                    {visibility.areaTrabalho && (
-                      <FormField
-                        id="areaTrabalho"
-                        label="Qual área trabalha?"
-                        register={register}
-                      />
-                    )}
-                    {visibility.funcao && (
-                      <FormField
-                        id="funcao"
-                        label="Qual a sua função?"
-                        register={register}
-                      />
-                    )}
-                    {visibility.tempoEmpresa && (
-                      <FormField
-                        id="tempoEmpresa"
-                        label="Tempo de empresa"
-                        register={register}
-                        options={[
-                          { value: '', label: '' },
-                          { value: 'Menos de 1 ano', label: 'Menos de 1 ano' },
-                          { value: '1 a 3 anos', label: '1 a 3 anos' },
-                          { value: '5 a 10 anos', label: '5 a 10 anos' },
-                          { value: 'Mais de 10 anos', label: 'Mais de 10 anos' }
-                        ]}
-                      />
-                    )}
-                    {visibility.modeloTrabalho && (
-                      <FormField
-                        id="modeloTrabalho"
-                        label="Modelo de trabalho?"
-                        register={register}
-                        options={[
-                          { value: '', label: '' },
-                          { value: 'Presencial', label: 'Presencial' },
-                          { value: 'Híbrido', label: 'Híbrido' },
-                          { value: 'Remoto', label: 'Remoto' }
-                        ]}
-                      />
-                    )}
-                    {visibility.tempoCasaTrab && (
-                      <FormField
-                        id="tempoCasaTrab"
-                        label="Tempo que leva de casa ao trabalho (00h00m)"
-                        register={register}
-                      />
-                    )}
-                    {visibility.partGrupos && (
-                      <FormField
-                        id="partGrupos"
-                        label="Participação em associações ou grupos comunitários?"
-                        register={register}
-                      />
-                    )}
-                    {visibility.educacaoMetanoia && (
-                      <FormField
-                        id="educacaoMetanoia"
-                        label="Já fez algum processo de educação Metanoia/Capital ?"
-                        register={register}
-                      />
-                    )}
-                  </SimpleGrid>
-                </Box>
+                {sectionNames.map(sectionName => (
+                  <Box key={sectionName} w="full">
+                    <Heading as="h3" size="md" mb="1rem">
+                      {sectionName}
+                    </Heading>
+                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                      {sections[sectionName].map(field => renderFormField(field))}
+                    </SimpleGrid>
+                    {sectionName !== sectionNames[sectionNames.length - 1] && <Divider mt={4} />}
+                  </Box>
+                ))}
               </VStack>
-              <Button type="submit" bg={'#1F7CBF'} color={'white'} mt={'4rem'}>
+              <Button type="submit" bg={'#1F7CBF'} color={'white'} mt={'4rem'} w={'full'}>
                 Iniciar Pesquisa
               </Button>
             </form>
@@ -324,7 +294,7 @@ const Identificação = () => {
         </Box>
       </Center>
     </Flex>
-  )
-}
+  );
+};
 
-export default Identificação
+export default Identificação;

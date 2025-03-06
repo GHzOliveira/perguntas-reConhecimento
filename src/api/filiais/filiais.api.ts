@@ -1,12 +1,5 @@
+import { Filial } from '../../types/FormType'
 import api from '../api'
-
-export interface Filial {
-  id?: number
-  filial: string
-  quantidadeColaboradores: number
-  companyId: number
-  linkUnico?: string
-}
 
 interface CreateManyResponse {
   filiais: Filial[]
@@ -42,6 +35,19 @@ export class FilialService {
       throw error
     }
   }
+
+/**
+ * Retorna as filiais de uma empresa específica.
+ */
+static async getByCompanyId(companyId: number): Promise<Filial[]> {
+  try {
+    const response = await api.get(`/filial/company/${companyId}`)
+    return response.data
+  } catch (error) {
+    console.error('Erro ao buscar filiais da empresa:', error)
+    return []
+  }
+}
 
   /**
    * Retorna a lista de todas as filiais.

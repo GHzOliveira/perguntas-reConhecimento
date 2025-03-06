@@ -1,7 +1,7 @@
 import { ReactElement, memo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Box, Flex, Text, VStack } from '@chakra-ui/react'
-import { PiBuildings, PiHouse, PiIdentificationBadgeLight, PiPencilSimple } from 'react-icons/pi'
+import { PiBuildings, PiIdentificationBadgeLight, PiPencilSimple } from 'react-icons/pi'
 
 interface AdminSidebarProps {
   onClose?: () => void

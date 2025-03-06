@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useEffect } from 'react'
+import { useMemo, useCallback, useEffect, useState } from 'react'
 import {
   Box,
   Select,
@@ -17,14 +17,24 @@ import {
   IconButton,
   Input,
   NumberInput,
-  NumberInputField
+  NumberInputField,
+  Alert,
+  AlertIcon,
+  Divider,
+  Heading,
+  Center
 } from '@chakra-ui/react'
 import { AddIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons'
+import { FormBuilderService } from '../../../api/formBuilder/formBuilder.api'
 import { AgGridReact } from 'ag-grid-react'
 import { ColDef, GridReadyEvent } from 'ag-grid-community'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 import { useCompanySelect } from '../hook/useCompanySelect'
+import validator from '@rjsf/validator-ajv8'
+import Form from '@rjsf/core'
+import { useFiliais } from '../../../hooks/useFiliais'
+import { IdentificacaoTemplate } from './DynamicForm/components/FormPreview'
 
 const CompanySelect = () => {
   const {
@@ -43,13 +53,56 @@ const CompanySelect = () => {
     handleSaveGlobalFilter
   } = useCompanySelect()
 
+  const [companyForm, setCompanyForm] = useState<any>(null)
+  const [isLoadingForm, setIsLoadingForm] = useState<boolean>(false)
+  const storedCompanyId = localStorage.getItem('globalCompanyFilter');
+  const { filiais } = useFiliais(storedCompanyId ? parseInt(storedCompanyId) : undefined);
+
   const { isOpen, onOpen, onClose } = useDisclosure()
+
+  const loadCompanyForm = useCallback(async (companyId: string) => {
+    if (!companyId) return;
+    
+    try {
+      setIsLoadingForm(true);
+      
+      const response = await FormBuilderService.getFormsByCompanyId(parseInt(companyId));
+
+      if (response.success) {
+        const defaultForm = response.data.find(form => form.isDefault);
+        setCompanyForm(defaultForm || response.data[0]);
+      } else {
+        setCompanyForm(null);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar formulário da empresa:', error);
+      setCompanyForm(null);
+    } finally {
+      setIsLoadingForm(false);
+    }
+  }, []);
+
+  const enhancedSchema = useMemo(() => {
+    if (!companyForm?.formData?.schema) return null;
+    
+    const newSchema = {...companyForm.formData.schema};
+    
+    if (newSchema.properties && newSchema.properties.filialId) {
+      newSchema.properties.filialId.enum = filiais.map(filial => filial.id);
+      newSchema.properties.filialId.enumNames = filiais.map(filial => filial.filial);
+    }
+    
+    return newSchema;
+  }, [companyForm, filiais]);
 
   useEffect(() => {
     if (selectedCompany) {
-      getFiliaisByCompany(selectedCompany);
+      getFiliaisByCompany(selectedCompany)
+      loadCompanyForm(selectedCompany)
+    } else {
+      setCompanyForm(null)
     }
-  }, [selectedCompany]);
+  }, [selectedCompany, getFiliaisByCompany, loadCompanyForm]);
 
   const columnDefs: ColDef[] = useMemo(() => [
     {
@@ -164,6 +217,62 @@ const CompanySelect = () => {
             />
           </Box>
         </>
+      )}
+
+{selectedCompany && (
+        <Box mt={8}>
+          <Divider my={6} />
+          <Heading size="md" mb={4}>Formulário Dinâmico da Empresa</Heading>
+          
+          {isLoadingForm ? (
+            <Text>Carregando formulário...</Text>
+          ) : companyForm ? (
+            <Center>
+              <Box w="full" maxW="2xl" mt={4} mb={4}>
+                <Heading as="h2" size="lg" mb="1rem" textAlign="center">
+                  {companyForm.name}
+                </Heading>
+                <Box
+                  p={8}
+                  borderWidth={1}
+                  borderRadius="lg"
+                  boxShadow="lg"
+                  bg="white"
+                  w="full"
+                >
+                  {companyForm.description && (
+                    <Text mb={4} color="gray.600">{companyForm.description}</Text>
+                  )}
+                  <Form
+                    schema={enhancedSchema || companyForm.formData.schema}
+                    uiSchema={companyForm.formData.uiSchema || {}}
+                    validator={validator}
+                    formData={{}}
+                    onSubmit={() => {}}
+                    disabled={true}
+                    templates={IdentificacaoTemplate}
+                  >
+                    <Button 
+                      type="submit" 
+                      bg={'#1F7CBF'} 
+                      color={'white'} 
+                      mt={'2rem'}
+                      w={'full'}
+                      disabled={true}
+                    >
+                      Formulário apenas para visualização
+                    </Button>
+                  </Form>
+                </Box>
+              </Box>
+            </Center>
+          ) : (
+            <Alert status="info" borderRadius="md">
+              <AlertIcon />
+              Não há nenhum formulário dinâmico associado a esta empresa. Utilize o módulo "Formulário Dinâmico" para criar um.
+            </Alert>
+          )}
+        </Box>
       )}
 
       <Modal isOpen={isOpen} onClose={onClose}>

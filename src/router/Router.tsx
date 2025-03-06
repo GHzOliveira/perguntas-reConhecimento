@@ -8,9 +8,8 @@ import AdminLayout from '../pages/admin/layout/layout'
 const Home = lazy(() => import('../pages/home/home'))
 const LayoutComAdminPanel = lazy(() => import('../pages/identificação'))
 const Questionnaire = lazy(() => import('../pages/perguntas/etapas/etapas'))
-const Dashboard = lazy(() => import('../pages/admin/pages/Dashboard'))
 const UsersPage = lazy(() => import('../pages/admin/pages/telaAdmin'))
-const DynamicForm = lazy(() => import('../pages/admin/pages/DynamicForm'))
+const DynamicForm = lazy(() => import('../pages/admin/pages/DynamicForm/DynamicForm'))
 const CompanySelect = lazy(() => import('../pages/admin/pages/CompanySelect'))
 
 
@@ -36,8 +35,7 @@ function Router() {
               <ProtectedRoute>
                 <AdminLayout>
                   <Routes>
-                    <Route index element={<Dashboard />} />
-                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route index element={<CompanySelect />} />
                     <Route path="users" element={<UsersPage />} />
                     <Route path="dynamic-form" element={<DynamicForm />} />
                     <Route path="company-select" element={<CompanySelect />} />

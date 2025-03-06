@@ -1,6 +1,9 @@
 export interface Filial {
   id: number
   filial: string
+  quantidadeColaboradores: number
+  companyId: number
+  linkUnico?: string
 }
 
 export type FormData = {

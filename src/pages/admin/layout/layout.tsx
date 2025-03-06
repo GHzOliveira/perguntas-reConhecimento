@@ -9,7 +9,6 @@ import {
     useBreakpointValue
 } from '@chakra-ui/react'
 import { AdminSidebar } from '../components/Sidebar'
-import { Footer } from '../../../components/footer/Footer'
 import { AdminHeader } from '../components/Headeradmin'
 
 interface AdminLayoutProps {
@@ -31,7 +30,6 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                   </SaasSidebar>
               ) : undefined
           }
-          footer={<Footer />}
       >
           <Drawer 
               isOpen={isOpen} 
