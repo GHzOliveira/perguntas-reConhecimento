@@ -18,8 +18,10 @@ export class FormSchemaService {
     const uiSchema: any = {};
     const fieldOrder: string[] = [];
     
+    const sectionMap: { [key: string]: string[] } = {};
+    
     fields.forEach((field) => {
-      const { name, type, title, description, required, widget, ...rest } = field;
+      const { name, type, title, description, required, widget, section, ...rest } = field;
       
       schema.properties[field.name] = {
         type: field.type,
@@ -48,29 +50,69 @@ export class FormSchemaService {
           uiSchema[name]['ui:placeholder'] = field.placeholder;
         }
       }
+      
+      const sectionKey = section || 'outros';
+      if (!sectionMap[sectionKey]) {
+        sectionMap[sectionKey] = [];
+      }
+      sectionMap[sectionKey].push(name);
     });
 
     if (fieldOrder.length > 0) {
       uiSchema['ui:order'] = fieldOrder;
     }
     
+    const sections = [];
+    
+    const sectionOrder = ['dados_pessoais', 'endereco', 'empresa', 'outros'];
+    
+    for (const sectionKey of sectionOrder) {
+      if (sectionMap[sectionKey] && sectionMap[sectionKey].length > 0) {
+        sections.push({
+          title: this.getSectionTitle(sectionKey),
+          fields: sectionMap[sectionKey]
+        });
+      }
+    }
+    
+    if (sections.length > 0) {
+      uiSchema['ui:sections'] = sections;
+    }
+    
     return { schema, uiSchema };
+  }
+
+  /**
+   * Retorna o título da seção com base no identificador
+   */
+  static getSectionTitle(sectionKey: string): string {
+    const sectionTitles: { [key: string]: string } = {
+      'dados_pessoais': 'Dados Pessoais',
+      'endereco': 'Endereço',
+      'empresa': 'Empresa',
+      'outros': 'Outros'
+    };
+    
+    return sectionTitles[sectionKey] || 'Outros';
   }
 
   /**
  * Organiza campos em seções (para uso no uiSchema)
  */
-static organizeSections(fields: FormField[]): { [key: string]: string } {
-  const sectionMap: { [key: string]: string } = {};
-  
-  fields.forEach(field => {
-    if (field.section) {
-      sectionMap[field.name] = field.section;
-    }
-  });
-  
-  return sectionMap;
-}
+  static organizeSections(fields: FormField[]): { [key: string]: string[] } {
+    const sectionMap: { [key: string]: string[] } = {};
+    
+    fields.forEach(field => {
+      if (field.section) {
+        if (!sectionMap[field.section]) {
+          sectionMap[field.section] = [];
+        }
+        sectionMap[field.section].push(field.name);
+      }
+    });
+    
+    return sectionMap;
+  }
 
   /**
    * Extrai campos de um schema existente
@@ -81,6 +123,18 @@ static organizeSections(fields: FormField[]): { [key: string]: string } {
     if (!schema?.properties) return extractedFields;
 
     const fieldsMap: Record<string, FormField> = {};
+    const sectionMap: Record<string, string> = {};
+    
+    if (uiSchema['ui:sections']) {
+      uiSchema['ui:sections'].forEach((section: any) => {
+        const { title, fields } = section;
+        const sectionKey = this.getSectionKeyFromTitle(title);
+        
+        fields.forEach((fieldName: string) => {
+          sectionMap[fieldName] = sectionKey;
+        });
+      });
+    }
     
     Object.entries(schema.properties).forEach(([name, propDetails]: [string, any]) => {
       const field: FormField = {
@@ -89,6 +143,7 @@ static organizeSections(fields: FormField[]): { [key: string]: string } {
         title: propDetails.title || name,
         description: propDetails.description,
         required: schema.required?.includes(name),
+        section: sectionMap[name] || undefined
       };
       
       if (propDetails.enum) field.enum = propDetails.enum;
@@ -123,5 +178,19 @@ static organizeSections(fields: FormField[]): { [key: string]: string } {
     });
     
     return extractedFields;
+  }
+
+  /**
+   * Obtém a chave da seção com base no título
+   */
+  static getSectionKeyFromTitle(title: string): string {
+    const titleToKey: { [key: string]: string } = {
+      'Dados Pessoais': 'dados_pessoais',
+      'Endereço': 'endereco',
+      'Empresa': 'empresa',
+      'Outros': 'outros'
+    };
+    
+    return titleToKey[title] || 'outros';
   }
 }

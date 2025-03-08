@@ -48,7 +48,6 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
   const [loading, setLoading] = useState<boolean>(false)
   const toast = useToast()
 
-  // Define a altura do grid de acordo com o tamanho da tela
   const gridHeight = useBreakpointValue({ base: '20rem', md: '25rem', lg: '25rem' })
 
   const handleDeleteUser = useCallback(
@@ -73,7 +72,7 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
         setLoading(false)
       }
     },
-    [toast]
+    [toast, setLoading]
   )
 
   const CustomButtonComponent = useCallback(
@@ -143,7 +142,7 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
   const onGridReady = useCallback((params: GridReadyEvent) => {
     setGridApi(params.api)
     params.api.sizeColumnsToFit()
-  }, [])
+  }, [ setGridApi ])
 
   const defaultColDef = useMemo(
     () => ({

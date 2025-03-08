@@ -11,10 +11,8 @@ export const useFetchUsers = (companyFilter?: string | null) => {
       try {
         let usersData;
         if (companyFilter) {
-          // Busca usuários apenas da empresa selecionada
           usersData = await UsersService.fetchByCompany(companyFilter);
         } else {
-          // Busca todos os usuários
           usersData = await UsersService.fetchAll();
         }
         setUsers(usersData);

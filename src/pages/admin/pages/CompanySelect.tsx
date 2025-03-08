@@ -80,7 +80,7 @@ const CompanySelect = () => {
     } finally {
       setIsLoadingForm(false);
     }
-  }, []);
+  }, [ setIsLoadingForm, setCompanyForm ]);
 
   const enhancedSchema = useMemo(() => {
     if (!companyForm?.formData?.schema) return null;
@@ -145,7 +145,7 @@ const CompanySelect = () => {
 
   const onGridReady = useCallback((params: GridReadyEvent) => {
     params.api.sizeColumnsToFit()
-  }, [])
+  }, [ setEditingFilial ])
 
   const handleSubmit = () => {
     if (editingFilial) {

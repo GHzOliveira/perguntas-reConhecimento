@@ -7,6 +7,7 @@ import {
 } from '@chakra-ui/react';
 import { ArrowDownIcon, ArrowUpIcon, DeleteIcon } from '@chakra-ui/icons';
 import { FormField } from '../../../interface/form-builder.interface';
+import { FormSchemaService } from '../services/FormSchemaService';
 
 interface FieldListProps {
   formFields: FormField[];
@@ -66,7 +67,7 @@ const FieldList: React.FC<FieldListProps> = ({
             <Th>Nome</Th>
             <Th>Título</Th>
             <Th>Tipo</Th>
-            <Th>Widget</Th>
+            <Th>Seção</Th>
             <Th>Obrigatório</Th>
             <Th>Ordenar</Th>
             <Th>Ações</Th>
@@ -82,7 +83,11 @@ const FieldList: React.FC<FieldListProps> = ({
                   {getDisplayType(field.type)}
                 </Badge>
               </Td>
-              <Td>{field.widget || '-'}</Td>
+              <Td>
+                <Badge colorScheme={getSectionColor(field.section)}>
+                  {field.section ? FormSchemaService.getSectionTitle(field.section) : 'Sem seção'}
+                </Badge>
+              </Td>
               <Td>{field.required ? 'Sim' : 'Não'}</Td>
               <Td>
                 <ButtonGroup size="xs" isAttached variant="outline">
@@ -137,6 +142,16 @@ function getTypeColor(type: string): string {
     'object': 'cyan',
   };
   return colors[type] || 'gray';
+}
+
+function getSectionColor(section?: string): string {
+  const colors: Record<string, string> = {
+    'dados_pessoais': 'pink',
+    'endereco': 'teal',
+    'empresa': 'blue',
+    'outros': 'gray',
+  };
+  return section ? colors[section] || 'gray' : 'gray';
 }
 
 export default FieldList;

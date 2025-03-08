@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useToast } from '@chakra-ui/react'
 import { CompanyService, CompanyDisplay } from '../../../api/company/company.api'
-import { FilialService, Filial } from '../../../api/filiais/filiais.api'
-
+import { FilialService } from '../../../api/filiais/filiais.api'
+import { Filial } from '../../../types/FormType'
 export const useCompanySelect = () => {
   const [companies, setCompanies] = useState<CompanyDisplay[]>([])
   const [filiais, setFiliais] = useState<Filial[]>([])
@@ -20,7 +20,7 @@ export const useCompanySelect = () => {
     } catch (error) {
       console.error('Erro ao carregar empresas:', error)
     }
-  }, [])
+  }, [ setCompanies ])
 
   const loadFiliais = useCallback(async () => {
     try {
@@ -29,7 +29,7 @@ export const useCompanySelect = () => {
     } catch (error) {
       console.error('Erro ao carregar filiais:', error)
     }
-  }, [])
+  }, [ setFiliais])
 
   useEffect(() => {
     loadCompanies()

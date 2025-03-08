@@ -65,7 +65,7 @@ export const useFormFields = (companyId?: number) => {
     setCurrentSchema(schema);
     setUiSchema(newUiSchema);
     setIsDirty(true);
-  }, []);
+  }, [ setCurrentSchema, setUiSchema, setIsDirty ]);
 
   const addField = useCallback(() => {
     const validation = FormValidator.validateField(currentField, formFields);
@@ -104,7 +104,7 @@ export const useFormFields = (companyId?: number) => {
       status: 'success',
       duration: 2000,
     });
-  }, [setIsDirty]);
+  }, [setIsDirty, formFields, currentField, enumValues, enumNames, setFormFields, updateJsonSchema, toast]);
 
   const resetCurrentField = () => {
     setCurrentField({
@@ -159,7 +159,7 @@ export const useFormFields = (companyId?: number) => {
       status: 'info',
       duration: 3000,
     });
-  }, []);
+  }, [ setFormFields, updateJsonSchema, setIsDirty, toast ]);
   
   
   const loadFieldsFromSchema = (schema: any, uiSchema: any) => {

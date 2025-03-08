@@ -26,8 +26,7 @@ const FieldForm: React.FC<FieldFormProps> = ({
   const updateField = (key: keyof FormField, value: any) => {
     setCurrentField({ ...currentField, [key]: value });
   };
-
-  // Verifica se o tipo/widget atual precisa de opções de enumeração
+  
   const needsEnumValues =
     (currentField.type === 'string' && ['select', 'radio', 'checkboxes'].includes(currentField.widget || '')) ||
     currentField.type === 'array';

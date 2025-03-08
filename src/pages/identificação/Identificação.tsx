@@ -41,11 +41,22 @@ interface FormSchema {
   required?: string[];
 }
 
+interface UiSection {
+  title: string;
+  fields: string[];
+}
+
+interface UiSchema {
+  'ui:sections'?: UiSection[];
+  [key: string]: any;
+}
+
 const Identificação = () => {
   const { companyId } = useParams<{ companyId: string }>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [formSchema, setFormSchema] = useState<FormSchema | null>(null);
+  const [formUiSchema, setFormUiSchema] = useState<UiSchema | null>(null);
   const [formTitle, setFormTitle] = useState<string>('Formulário de Identificação');
 
   const {
@@ -85,6 +96,7 @@ const Identificação = () => {
         
         setFormTitle(selectedForm.name);
         setFormSchema(selectedForm.formData.schema);
+        setFormUiSchema(selectedForm.formData.uiSchema || {});
         setIsLoading(false);
       } catch (error) {
         console.error('Erro ao carregar formulário:', error);
@@ -128,32 +140,64 @@ const Identificação = () => {
   const marginTop = useBreakpointValue({ base: '2rem', md: '5rem' });
   const maxW = useBreakpointValue({ base: '90%', md: '2xl' });
 
-  const groupFieldsBySection = (schema: FormSchema) => {
+  const groupFieldsBySection = (schema: FormSchema, uiSchema: UiSchema | null) => {
     if (!schema || !schema.properties) return {};
     
-    const sections: Record<string, any[]> = {
+    const defaultSections = {
       "Dados Pessoais": [],
       "Endereço": [],
-      "Empresa": []
+      "Empresa": [],
+      "Outros": []
     };
 
-    Object.entries(schema.properties).forEach(([fieldName, fieldSchema]) => {
-      const fieldInfo = {
-        name: fieldName,
-        ...fieldSchema
-      };
+    if (!uiSchema || !uiSchema['ui:sections']) {
+      Object.entries(schema.properties).forEach(([fieldName, fieldSchema]) => {
+        const fieldInfo = {
+          name: fieldName,
+          ...fieldSchema
+        };
+        
+        if (["pais", "estado", "cidade"].includes(fieldName)) {
+          defaultSections["Endereço"].push(fieldInfo);
+        } else if (["filialId", "areaTrabalho", "funcao", "tempoEmpresa", "modeloTrabalho", "tempoCasaTrab", "partGrupos", "educacaoMetanoia"].includes(fieldName)) {
+          defaultSections["Empresa"].push(fieldInfo);
+        } else {
+          defaultSections["Dados Pessoais"].push(fieldInfo);
+        }
+      });
+    } else {
+      const sections: Record<string, any[]> = {};
+      const fieldMap: Record<string, any> = {};
       
-      if (["pais", "estado", "cidade"].includes(fieldName)) {
-        sections["Endereço"].push(fieldInfo);
-      } else if (["filialId", "areaTrabalho", "funcao", "tempoEmpresa", "modeloTrabalho", "tempoCasaTrab", "partGrupos", "educacaoMetanoia"].includes(fieldName)) {
-        sections["Empresa"].push(fieldInfo);
-      } else {
-        sections["Dados Pessoais"].push(fieldInfo);
+      Object.entries(schema.properties).forEach(([fieldName, fieldSchema]) => {
+        fieldMap[fieldName] = {
+          name: fieldName,
+          ...fieldSchema
+        };
+      });
+      
+      uiSchema['ui:sections'].forEach(section => {
+        sections[section.title] = [];
+        section.fields.forEach(fieldName => {
+          if (fieldMap[fieldName]) {
+            sections[section.title].push(fieldMap[fieldName]);
+            delete fieldMap[fieldName];
+          }
+        });
+      });
+      
+      if (Object.keys(fieldMap).length > 0) {
+        sections["Outros"] = sections["Outros"] || [];
+        Object.values(fieldMap).forEach(field => {
+          sections["Outros"].push(field);
+        });
       }
-    });
+      
+      return sections;
+    }
     
     return Object.fromEntries(
-      Object.entries(sections).filter(([_, fields]) => fields.length > 0)
+      Object.entries(defaultSections).filter(([_, fields]) => fields.length > 0)
     );
   };
 
@@ -241,7 +285,7 @@ const Identificação = () => {
     );
   }
 
-  const sections = formSchema ? groupFieldsBySection(formSchema) : {};
+  const sections = formSchema ? groupFieldsBySection(formSchema, formUiSchema) : {};
   const sectionNames = Object.keys(sections);
 
   return (

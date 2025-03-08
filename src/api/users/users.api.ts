@@ -1,6 +1,14 @@
+import { User } from '../../pages/admin/interface/user'
 import api from '../api'
 
-export interface UserResponse {
+// Interface para a resposta padrão da API
+interface StandardResponse<T> {
+  success: boolean
+  message: string
+  data: T
+}
+
+export interface FormResponseStatus {
   respondeuForm: boolean
 }
 
@@ -8,10 +16,10 @@ export class UsersService {
   /**
    * Cria um novo usuário.
    */
-  static async create(userData: FormData): Promise<any> {
+  static async create(userData: FormData): Promise<User> {
     try {
-      const response = await api.post('/users', userData)
-      return response.data
+      const response = await api.post<StandardResponse<User>>('/users', userData)
+      return response.data.data
     } catch (error) {
       console.error('Erro ao criar usuário:', error)
       throw error
@@ -21,10 +29,10 @@ export class UsersService {
   /**
    * Exclui um usuário pelo ID.
    */
-  static async delete(id: number): Promise<any> {
+  static async delete(id: number): Promise<User> {
     try {
-      const response = await api.delete(`/users/${id}`)
-      return response.data
+      const response = await api.delete<StandardResponse<User>>(`/users/${id}`)
+      return response.data.data
     } catch (error) {
       console.error(`Erro ao excluir usuário ${id}:`, error)
       throw error
@@ -34,13 +42,13 @@ export class UsersService {
   /**
    * Retorna a lista de todos os usuários.
    */
-  static async fetchAll(): Promise<any[]> {
+  static async fetchAll(): Promise<User[]> {
     try {
-      const response = await api.get('/users')
-      return response.data
+      const response = await api.get<StandardResponse<User[]>>('/users')
+      return response.data.data
     } catch (error) {
       console.error('Erro ao buscar usuários:', error)
-      throw error
+      return []
     }
   }
 
@@ -50,10 +58,10 @@ export class UsersService {
   static async submitResponse(
     userId: number,
     responses: Record<number, number>
-  ): Promise<any> {
+  ): Promise<void> {
     try {
-      const response = await api.post(`/users/${userId}/responses`, responses)
-      return response.data
+      const response = await api.post<StandardResponse<void>>(`/users/${userId}/responses`, responses)
+      return response.data.data
     } catch (error) {
       console.error(`Erro ao submeter respostas do usuário ${userId}:`, error)
       throw error
@@ -63,13 +71,13 @@ export class UsersService {
   /**
    * Busca as respostas de um usuário.
    */
-  static async fetchResponses(userId: number): Promise<any> {
+  static async fetchResponses(userId: number): Promise<any[]> {
     try {
-      const response = await api.get(`/users/${userId}/responses`)
-      return response.data
+      const response = await api.get<StandardResponse<any[]>>(`/users/${userId}/responses`)
+      return response.data.data
     } catch (error) {
       console.error(`Erro ao buscar respostas do usuário ${userId}:`, error)
-      throw error
+      return []
     }
   }
 
@@ -79,12 +87,12 @@ export class UsersService {
   static async markFormAsResponded(
     userId: number,
     responded: boolean
-  ): Promise<any> {
+  ): Promise<User> {
     try {
-      const response = await api.patch(`/users/${userId}/markFormAsResponded`, {
+      const response = await api.patch<StandardResponse<User>>(`/users/${userId}/markFormAsResponded`, {
         respondeuForm: responded
       })
-      return response.data
+      return response.data.data
     } catch (error) {
       console.error(
         `Erro ao marcar formulário como respondido para o usuário ${userId}:`,
@@ -94,28 +102,57 @@ export class UsersService {
     }
   }
 
-  static async fetchByCompany(companyId: string): Promise<any[]> {
+  /**
+   * Busca usuários por ID da empresa.
+   */
+  static async fetchByCompany(companyId: number): Promise<User[]> {
     try {
-      const response = await api.get(`/users/company/${companyId}`);
-      return response.data;
+      const response = await api.get<StandardResponse<User[]>>(`/users/company/${companyId}`);
+      return response.data.data;
     } catch (error) {
       console.error('Erro ao buscar usuários da empresa:', error);
-      throw error;
+      return [];
     }
   }
 
   /**
    * Verifica se o formulário do usuário foi respondido.
    */
-  static async checkFormResponse(userId: number): Promise<UserResponse> {
+  static async checkFormResponse(userId: number): Promise<FormResponseStatus> {
     try {
-      const response = await api.get(`/users/${userId}/respondeuForm`)
-      return response.data
+      const response = await api.get<StandardResponse<FormResponseStatus>>(`/users/${userId}/respondeuForm`)
+      return response.data.data
     } catch (error) {
       console.error(
         `Erro ao verificar formulário respondido para o usuário ${userId}:`,
         error
       )
+      throw error
+    }
+  }
+  
+  /**
+   * Busca um usuário pelo ID.
+   */
+  static async fetchById(userId: number): Promise<User> {
+    try {
+      const response = await api.get<StandardResponse<User>>(`/users/${userId}`)
+      return response.data.data
+    } catch (error) {
+      console.error(`Erro ao buscar usuário ${userId}:`, error)
+      throw error
+    }
+  }
+  
+  /**
+   * Atualiza os dados de um usuário.
+   */
+  static async update(userId: number, userData: Partial<User>): Promise<User> {
+    try {
+      const response = await api.patch<StandardResponse<User>>(`/users/${userId}`, userData)
+      return response.data.data
+    } catch (error) {
+      console.error(`Erro ao atualizar usuário ${userId}:`, error)
       throw error
     }
   }
