@@ -111,23 +111,32 @@ const Identificação = () => {
   const onSubmit: SubmitHandler<FormData> = async data => {
     try {
       const processedData: Record<string, any> = {...data};
-      
+    
+      // Processar os campos existentes
       if (processedData.dataNascimento && processedData.dataNascimento.trim() !== '') {
         processedData.dataNascimento += 'T00:00:00.000Z';
       } else {
         processedData.dataNascimento = null;
       }
-
+  
       ['filhos', 'quantidadeLivros', 'filialId'].forEach(field => {
         if (processedData[field] !== null && processedData[field] !== undefined) {
           processedData[field] = Number(processedData[field]);
         }
       });
-
+  
       if (typeof processedData.educacaoMetanoia === 'string') {
         processedData.educacaoMetanoia = processedData.educacaoMetanoia === 'true';
       }
 
+      if (companyId && !processedData.companyId) {
+        processedData.companyId = Number(companyId);
+      }
+  
+      if (!processedData.companyId) {
+        throw new Error("ID da empresa não encontrado. Por favor, verifique a URL ou selecione uma empresa.");
+      }
+  
       const createdUser = await UsersService.create(processedData);
       sessionStorage.setItem('userSession', JSON.stringify(createdUser));
       navigate('/identificacao/questionario');

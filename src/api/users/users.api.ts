@@ -1,7 +1,6 @@
 import { User } from '../../pages/admin/interface/user'
 import api from '../api'
 
-// Interface para a resposta padrão da API
 interface StandardResponse<T> {
   success: boolean
   message: string
@@ -14,11 +13,27 @@ export interface FormResponseStatus {
 
 export class UsersService {
   /**
-   * Cria um novo usuário.
+   * Cria um novo usuário com suporte a campos dinâmicos.
+   * @param userData Dados do usuário
+   * @param validateSchema Se true, valida os dados dinâmicos contra o esquema ativo
    */
-  static async create(userData: FormData): Promise<User> {
+  static async create(userData: Record<string, any>, validateSchema = false): Promise<User> {
     try {
-      const response = await api.post<StandardResponse<User>>('/users', userData)
+      const { nome, email, filialId, companyId, respondeuForm = false, ...dynamicFields } = userData
+
+      const payload = {
+        nome,
+        email,
+        filialId: Number(filialId),
+        companyId: Number(companyId),
+        respondeuForm,
+        dynamicResponses: dynamicFields
+      }
+
+      const response = await api.post<StandardResponse<User>>(
+        `/users${validateSchema ? '?validateSchema=true' : ''}`, 
+        payload
+      )
       return response.data.data
     } catch (error) {
       console.error('Erro ao criar usuário:', error)
@@ -145,14 +160,75 @@ export class UsersService {
   }
   
   /**
-   * Atualiza os dados de um usuário.
+   * Atualiza os dados de um usuário, incluindo campos fixos e dinâmicos.
+   * @param userId ID do usuário
+   * @param userData Dados parciais do usuário
+   * @param validateSchema Se true, valida os dados dinâmicos contra o esquema ativo
    */
-  static async update(userId: number, userData: Partial<User>): Promise<User> {
+  static async update(
+    userId: number, 
+    userData: Partial<Record<string, any>>,
+    validateSchema = false
+  ): Promise<User> {
     try {
-      const response = await api.patch<StandardResponse<User>>(`/users/${userId}`, userData)
+      const { nome, email, filialId, companyId, respondeuForm, ...dynamicFields } = userData
+      
+      const payload: Record<string, any> = {}
+      
+      if (nome !== undefined) payload.nome = nome
+      if (email !== undefined) payload.email = email
+      if (filialId !== undefined) payload.filialId = Number(filialId)
+      if (companyId !== undefined) payload.companyId = Number(companyId)
+      if (respondeuForm !== undefined) payload.respondeuForm = respondeuForm
+      
+      if (Object.keys(dynamicFields).length > 0) {
+        payload.dynamicResponses = dynamicFields
+      }
+
+      const response = await api.patch<StandardResponse<User>>(
+        `/users/${userId}${validateSchema ? '?validateSchema=true' : ''}`, 
+        payload
+      )
       return response.data.data
     } catch (error) {
       console.error(`Erro ao atualizar usuário ${userId}:`, error)
+      throw error
+    }
+  }
+
+   /**
+   * Atualiza apenas os dados dinâmicos de um usuário.
+   * @param userId ID do usuário
+   * @param dynamicData Dados dinâmicos a serem atualizados
+   * @param validateSchema Se true, valida os dados dinâmicos contra o esquema ativo
+   */
+   static async updateDynamicData(
+    userId: number, 
+    dynamicData: Record<string, any>,
+    validateSchema = false
+  ): Promise<User> {
+    try {
+      const response = await api.patch<StandardResponse<User>>(
+        `/users/${userId}/dynamic-responses${validateSchema ? '?validateSchema=true' : ''}`, 
+        dynamicData
+      )
+      return response.data.data
+    } catch (error) {
+      console.error(`Erro ao atualizar dados dinâmicos do usuário ${userId}:`, error)
+      throw error
+    }
+  }
+
+  /**
+   * Busca apenas os dados dinâmicos de um usuário.
+   * @param userId ID do usuário
+   */
+  static async fetchDynamicData(userId: number): Promise<Record<string, any>> {
+    try {
+      const response = await api.get<StandardResponse<Record<string, any>>>(`/users/${userId}/dynamic-responses`)
+      return response.data.data
+    } catch (error) {
+      console.error(`Erro ao buscar dados dinâmicos do usuário ${userId}:`, error)
       throw error
     }
   }

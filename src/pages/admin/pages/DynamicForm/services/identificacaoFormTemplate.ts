@@ -3,8 +3,7 @@ export const identificacaoFormTemplate = {
     type: "object",
     title: "Formulário de Identificação",
     properties: {
-      // Dados Pessoais
-      nomeCompleto: {
+      nome: {
         type: "string",
         title: "Nome completo"
       },
@@ -89,7 +88,7 @@ export const identificacaoFormTemplate = {
     "ui:sections": [
       {
         title: "Dados Pessoais",
-        fields: ["nomeCompleto", "dataNascimento", "email", "cpf", "genero", "estadoCivil", "filhos", "quantidadeLivros", "hobbie"]
+        fields: ["nome", "dataNascimento", "email", "cpf", "genero", "estadoCivil", "filhos", "quantidadeLivros", "hobbie"]
       },
       {
         title: "Endereço",

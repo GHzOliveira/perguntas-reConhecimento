@@ -99,7 +99,7 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
     () => [
       {
         headerName: 'Nome',
-        field: 'nomeCompleto',
+        field: 'nome',
         filter: true,
         sortable: true,
         flex: 2,
@@ -114,8 +114,8 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
         resizable: true
       },
       {
-        headerName: 'Área de Trabalho',
-        field: 'areaTrabalho',
+        headerName: 'Email',
+        field: 'email',
         filter: true,
         sortable: true,
         flex: 1,

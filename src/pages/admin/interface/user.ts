@@ -1,6 +1,6 @@
 export interface User {
   id: number
-  nomeCompleto: string
+  nome: string
   email: string
   dataNascimento?: Date
   cpf?: string
@@ -23,6 +23,7 @@ export interface User {
   pais?: string
   educacaoMetanoia?: boolean
   respondeuForm?: boolean
+  dynamicResponses?: Record<string, any>;
   createdAt?: Date
   updatedAt?: Date
 }

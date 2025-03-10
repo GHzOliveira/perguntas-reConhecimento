@@ -50,7 +50,7 @@ function Introducao({ nextStep, userId }: IntroProps) {
         Concordo e Concordo plenamente.
         <br />
         <br />
-        Por gentileza, responda até o dia 07 de julho. Muito obrigado!
+        Por gentileza, responda até o dia [DIA]. Muito obrigado!
       </p>
       <Divider />
       <Botao
