@@ -19,7 +19,7 @@ import { CalcService } from '../../../api/calculo/calc.api'
 import { useGlobalCompanyFilter } from '../hook/useGlobalCompanyFilter'
 
 export default function TabelaUsuarios() {
-  const globalCompanyFilter = useGlobalCompanyFilter();
+  const globalCompanyFilter = useGlobalCompanyFilter()
   const { users, loading } = useFetchUsers(globalCompanyFilter)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [userResponses] = useState<UserResponse[]>([])
@@ -31,15 +31,29 @@ export default function TabelaUsuarios() {
 
   const handleDownloadExcel = async (userId: number) => {
     try {
+      setIsDownloading(true)
       const response = await CalcService.downloadExcelIndividual(userId)
-      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const url = window.URL.createObjectURL(response)
       const link = document.createElement('a')
       link.href = url
       link.setAttribute('download', 'scores.xlsx')
       document.body.appendChild(link)
       link.click()
+
+      setTimeout(() => {
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+      }, 100)
     } catch (error) {
       console.error('Failed to download Excel file', error)
+      toast({
+        title: 'Erro no download',
+        description: 'Não foi possível baixar o arquivo',
+        status: 'error',
+        duration: 3000
+      })
+    } finally {
+      setIsDownloading(false)
     }
   }
 
@@ -55,15 +69,17 @@ export default function TabelaUsuarios() {
 
     try {
       const response = await CalcService.downloadTabelaResultados()
-      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const url = window.URL.createObjectURL(response)
       const link = document.createElement('a')
       link.href = url
       link.setAttribute('download', 'resultados.xlsx')
       document.body.appendChild(link)
       link.click()
 
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      setTimeout(() => {
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+      }, 100)
 
       toast.closeAll()
       toast({
@@ -87,12 +103,7 @@ export default function TabelaUsuarios() {
   if (loading) return <Box p={4}>Carregando...</Box>
 
   return (
-    <Box 
-      maxW="1200px"
-      w="100%"
-      mx="auto"
-      p={padding}
-    >
+    <Box maxW="1200px" w="100%" mx="auto" p={padding}>
       <VStack spacing={6} align="stretch" w="100%">
         <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
           <Heading size="xl">Usuários</Heading>
@@ -106,13 +117,7 @@ export default function TabelaUsuarios() {
           </Flex>
         </Flex>
 
-        <Box 
-          bg="white" 
-          borderRadius="md" 
-          shadow="sm"
-          overflowX="auto"
-          w="100%"
-        >
+        <Box bg="white" borderRadius="md" shadow="sm" overflowX="auto" w="100%">
           <UserTable users={users} onDownloadExcel={handleDownloadExcel} />
         </Box>
       </VStack>

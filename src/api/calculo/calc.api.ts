@@ -8,15 +8,17 @@ export class CalcService {
    */
   static async downloadExcelIndividual(userId: number): Promise<Blob> {
     try {
+      console.log(`Iniciando download do Excel para usuário ${userId}`)
       const response = await api.get(
         `calculo/calculate-and-generate-excel/${userId}`,
         { responseType: 'blob' }
       )
+      console.log(`Download concluído: tamanho ${response.data.size} bytes`)
       return response.data
     } catch (error) {
       console.error(
         `Erro ao baixar Excel individual para o usuário ${userId}:`,
-        error
+        error.response?.status || error.message
       )
       throw error
     }
@@ -28,12 +30,17 @@ export class CalcService {
    */
   static async downloadTabelaResultados(): Promise<Blob> {
     try {
+      console.log(`Iniciando download da tabela de resultados`)
       const response = await api.get(`calculo/generate-excel`, {
         responseType: 'blob'
       })
+      console.log(`Download concluído: tamanho ${response.data.size} bytes`)
       return response.data
     } catch (error) {
-      console.error('Erro ao baixar tabela de resultados:', error)
+      console.error(
+        'Erro ao baixar tabela de resultados:',
+        error.response?.status || error.message
+      )
       throw error
     }
   }

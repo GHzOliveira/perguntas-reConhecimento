@@ -1,16 +1,22 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useToast } from '@chakra-ui/react'
-import { CompanyService, CompanyDisplay } from '../../../api/company/company.api'
+import {
+  CompanyService,
+  CompanyDisplay
+} from '../../../api/company/company.api'
 import { FilialService } from '../../../api/filiais/filiais.api'
 import { Filial } from '../../../types/FormType'
 export const useCompanySelect = () => {
   const [companies, setCompanies] = useState<CompanyDisplay[]>([])
   const [filiais, setFiliais] = useState<Filial[]>([])
   const [selectedCompany, setSelectedCompany] = useState<string>(() => {
-    return localStorage.getItem('globalCompanyFilter') || ''
-  });
+    return localStorage.getItem('globalCompanyFilter') ?? ''
+  })
   const [editingFilial, setEditingFilial] = useState<Filial | null>(null)
-  const [newFilial, setNewFilial] = useState({ filial: '', quantidadeColaboradores: 0 })
+  const [newFilial, setNewFilial] = useState({
+    filial: '',
+    quantidadeColaboradores: 0
+  })
   const toast = useToast()
 
   const loadCompanies = useCallback(async () => {
@@ -20,7 +26,7 @@ export const useCompanySelect = () => {
     } catch (error) {
       console.error('Erro ao carregar empresas:', error)
     }
-  }, [ setCompanies ])
+  }, [setCompanies])
 
   const loadFiliais = useCallback(async () => {
     try {
@@ -29,7 +35,7 @@ export const useCompanySelect = () => {
     } catch (error) {
       console.error('Erro ao carregar filiais:', error)
     }
-  }, [ setFiliais])
+  }, [setFiliais])
 
   useEffect(() => {
     loadCompanies()
@@ -37,12 +43,11 @@ export const useCompanySelect = () => {
   }, [loadCompanies, loadFiliais])
 
   useEffect(() => {
-    // Carrega os dados da empresa selecionada quando o componente monta
-    const savedCompany = localStorage.getItem('globalCompanyFilter');
+    const savedCompany = localStorage.getItem('globalCompanyFilter')
     if (savedCompany) {
-      setSelectedCompany(savedCompany);
+      setSelectedCompany(savedCompany)
     }
-  }, []);
+  }, [])
 
   const getFiliaisByCompany = useCallback(
     (companyId: string) => {
@@ -102,21 +107,21 @@ export const useCompanySelect = () => {
 
   const handleSaveGlobalFilter = useCallback(() => {
     if (selectedCompany) {
-      localStorage.setItem('globalCompanyFilter', selectedCompany);
+      localStorage.setItem('globalCompanyFilter', selectedCompany)
       toast({
-        title: "Empresa selecionada com sucesso",
-        status: "success",
-        duration: 3000,
-      });
+        title: 'Empresa selecionada com sucesso',
+        status: 'success',
+        duration: 3000
+      })
     } else {
-      localStorage.removeItem('globalCompanyFilter');
+      localStorage.removeItem('globalCompanyFilter')
       toast({
-        title: "Filtro global removido",
-        status: "info",
-        duration: 3000,
-      });
+        title: 'Filtro global removido',
+        status: 'info',
+        duration: 3000
+      })
     }
-  }, [selectedCompany]);
+  }, [selectedCompany])
 
   return {
     companies,
