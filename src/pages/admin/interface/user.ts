@@ -1,7 +1,10 @@
 export interface User {
   id: number
   nome: string
-  email: string
+  cidade: string
+  funcaoMacro: string
+  dataAdmissao: string
+  genero: string
   filialId: number
   companyId: number
   funcao?: string

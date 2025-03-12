@@ -9,7 +9,6 @@ export interface Filial {
 export type FormData = {
   nomeCompleto: string | null
   dataNascimento: string | null
-  email: string | null
   cpf: string | null
   escolaridade: string | null
   estadoCivil: string | null
@@ -34,7 +33,6 @@ export interface UserResponse {
   id: number
   nomeCompleto?: string
   dataNascimento?: string | null
-  email?: string
   cpf?: string
   escolaridade?: string
   estadoCivil?: string

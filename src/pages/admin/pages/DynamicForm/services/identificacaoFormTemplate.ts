@@ -1,103 +1,90 @@
 export const identificacaoFormTemplate = {
   schema: {
-    type: "object",
-    title: "Formulário de Identificação",
+    type: 'object',
+    title: 'Formulário de Identificação',
     properties: {
       nome: {
-        type: "string",
-        title: "Nome completo"
+        type: 'string',
+        title: 'Nome completo'
       },
       dataNascimento: {
-        type: "string",
-        format: "date",
-        title: "Data de nascimento"
-      },
-      email: {
-        type: "string",
-        format: "email",
-        title: "Email"
-      },
-      cpf: {
-        type: "string",
-        title: "CPF"
+        type: 'string',
+        format: 'date',
+        title: 'Data de nascimento'
       },
       genero: {
-        type: "string",
-        title: "Gênero",
-        enum: ["Masculino", "Feminino", "Prefiro não dizer"]
+        type: 'string',
+        title: 'Gênero',
+        enum: ['Masculino', 'Feminino', 'Prefiro não dizer']
       },
       estadoCivil: {
-        type: "string",
-        title: "Estado Civil",
-        enum: ["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)"]
+        type: 'string',
+        title: 'Estado Civil',
+        enum: ['Solteiro(a)', 'Casado(a)', 'Divorciado(a)', 'Viúvo(a)']
       },
-      filhos: {
-        type: "integer",
-        title: "Número de filhos"
-      },
-      quantidadeLivros: {
-        type: "integer",
-        title: "Quantos livros lê por ano?"
-      },
-      hobbie: {
-        type: "string",
-        title: "Principal atividade nas horas vagas"
-      },
-      
+
       // Endereço
       pais: {
-        type: "string",
-        title: "País"
+        type: 'string',
+        title: 'País'
       },
       estado: {
-        type: "string",
-        title: "Estado"
+        type: 'string',
+        title: 'Estado'
       },
       cidade: {
-        type: "string",
-        title: "Cidade"
+        type: 'string',
+        title: 'Cidade'
       },
-      
+
       // Empresa
       filialId: {
-        type: "integer",
-        title: "Qual filial trabalha ?"
+        type: 'integer',
+        title: 'Selecione sua filial'
       },
-      areaTrabalho: {
-        type: "string",
-        title: "Qual área trabalha?"
+      funcaoMacro: {
+        type: 'string',
+        title: 'Qual a sua função?',
+        enum: ['Conselho', 'Diretor', 'Equipe', 'Gerente']
       },
-      funcao: {
-        type: "string",
-        title: "Qual a sua função?"
+      dataAdmissao: {
+        type: 'string',
+        format: 'date',
+        title: 'Data de admissão'
       },
       tempoEmpresa: {
-        type: "string",
-        title: "Tempo de empresa",
-        enum: ["Menos de 1 ano", "1 a 3 anos", "5 a 10 anos", "Mais de 10 anos"]
+        type: 'string',
+        title: 'Tempo de empresa',
+        enum: ['Menos de 1 ano', '1 a 3 anos', '5 a 10 anos', 'Mais de 10 anos']
       },
       modeloTrabalho: {
-        type: "string",
-        title: "Modelo de trabalho?",
-        enum: ["Presencial", "Híbrido", "Remoto"]
+        type: 'string',
+        title: 'Modelo de trabalho?',
+        enum: ['Presencial', 'Híbrido', 'Remoto']
       }
     },
-    required: ["nomeCompleto", "email"]
+    required: ['nomeCompleto']
   },
   uiSchema: {
-    "ui:sections": [
+    'ui:sections': [
       {
-        title: "Dados Pessoais",
-        fields: ["nome", "dataNascimento", "email", "cpf", "genero", "estadoCivil", "filhos", "quantidadeLivros", "hobbie"]
+        title: 'Dados Pessoais',
+        fields: ['nome', 'dataNascimento', 'cpf', 'genero', 'estadoCivil']
       },
       {
-        title: "Endereço",
-        fields: ["pais", "estado", "cidade"]
+        title: 'Endereço',
+        fields: ['pais', 'estado', 'cidade']
       },
       {
-        title: "Empresa",
-        fields: ["filialId", "areaTrabalho", "funcao", "tempoEmpresa", "modeloTrabalho"]
+        title: 'Empresa',
+        fields: [
+          'filialId',
+          'funcaoMacro',
+          'tempoEmpresa',
+          'dataAdmissao',
+          'modeloTrabalho'
+        ]
       }
     ]
   }
-};
+}

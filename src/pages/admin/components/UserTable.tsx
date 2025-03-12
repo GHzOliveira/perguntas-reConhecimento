@@ -48,7 +48,11 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
   const [loading, setLoading] = useState<boolean>(false)
   const toast = useToast()
 
-  const gridHeight = useBreakpointValue({ base: '20rem', md: '25rem', lg: '25rem' })
+  const gridHeight = useBreakpointValue({
+    base: '20rem',
+    md: '25rem',
+    lg: '25rem'
+  })
 
   const handleDeleteUser = useCallback(
     async (userId: number) => {
@@ -106,16 +110,24 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
         resizable: true
       },
       {
+        headerName: 'Filial',
+        field: 'filialId',
+        filter: true,
+        sortable: true,
+        flex: 2,
+        resizable: true
+      },
+      {
         headerName: 'Função',
-        field: 'funcao',
+        field: 'funcaoMacro',
         filter: true,
         sortable: true,
         flex: 1,
         resizable: true
       },
       {
-        headerName: 'Email',
-        field: 'email',
+        headerName: 'Cidade',
+        field: 'cidade',
         filter: true,
         sortable: true,
         flex: 1,
@@ -139,10 +151,13 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
     [CustomButtonComponent, CustomDeleteButtonComponent]
   )
 
-  const onGridReady = useCallback((params: GridReadyEvent) => {
-    setGridApi(params.api)
-    params.api.sizeColumnsToFit()
-  }, [ setGridApi ])
+  const onGridReady = useCallback(
+    (params: GridReadyEvent) => {
+      setGridApi(params.api)
+      params.api.sizeColumnsToFit()
+    },
+    [setGridApi]
+  )
 
   const defaultColDef = useMemo(
     () => ({
@@ -154,12 +169,15 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
   )
 
   return (
-    <div className="ag-theme-alpine" style={{
-      height: gridHeight,
-      width: '100%',
-      maxWidth: '100%',
-      overflowX: 'auto'
-    }}>
+    <div
+      className="ag-theme-alpine"
+      style={{
+        height: gridHeight,
+        width: '100%',
+        maxWidth: '100%',
+        overflowX: 'auto'
+      }}
+    >
       <AgGridReact<User>
         rowData={userList}
         columnDefs={columnDefs}

@@ -25,28 +25,28 @@ const RespostaComponent: React.FC<RespostaComponentProps> = ({
       <Td>
         <Flex justify="center">
           <RadioGroup value={respostaSelecionada} onChange={handleChange}>
-            <Radio value={ehNegativa ? '-10' : '0'} />
+            <Radio value={ehNegativa ? '10' : '0'} />
           </RadioGroup>
         </Flex>
       </Td>
       <Td>
         <Flex justify="center">
           <RadioGroup value={respostaSelecionada} onChange={handleChange}>
-            <Radio value={ehNegativa ? '-7.5' : '2.5'} />
+            <Radio value={ehNegativa ? '7.5' : '2.5'} />
           </RadioGroup>
         </Flex>
       </Td>
       <Td>
         <Flex justify="center">
           <RadioGroup value={respostaSelecionada} onChange={handleChange}>
-            <Radio value={ehNegativa ? '-5' : '5'} />
+            <Radio value={ehNegativa ? '5' : '5'} />
           </RadioGroup>
         </Flex>
       </Td>
       <Td>
         <Flex justify="center">
           <RadioGroup value={respostaSelecionada} onChange={handleChange}>
-            <Radio value={ehNegativa ? '-2.5' : '7.5'} />
+            <Radio value={ehNegativa ? '2.5' : '7.5'} />
           </RadioGroup>
         </Flex>
       </Td>

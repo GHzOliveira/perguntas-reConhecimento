@@ -61,19 +61,13 @@ export const GenericForm: React.FC<FormFieldsProps> = ({
             />
           </FormControl>
         )}
-        {visibility.email && (
-          <FormControl>
-            <FormLabel htmlFor="email">Email</FormLabel>
-            <Input id="email" type="email" {...register('email')} />
-          </FormControl>
-        )}
         {visibility.cpf && (
           <FormControl>
             <FormLabel htmlFor="cpf">CPF</FormLabel>
             <Input
               id="cpf"
               {...register('cpf', {
-                validate: value => isValidCPF(value || '') || 'CPF inválido',
+                validate: value => isValidCPF(value ?? '') || 'CPF inválido',
                 setValueAs: value => maskCPF(value)
               })}
               onChange={e => {
@@ -201,9 +195,7 @@ export const GenericForm: React.FC<FormFieldsProps> = ({
         )}
         {visibility.modeloTrabalho && (
           <FormControl>
-            <FormLabel htmlFor="modeloTrabalho">
-              Modelo de trabalho?
-            </FormLabel>
+            <FormLabel htmlFor="modeloTrabalho">Modelo de trabalho?</FormLabel>
             <Select id="modeloTrabalho" {...register('modeloTrabalho')}>
               <option value="Presencial">Presencial</option>
               <option value="Híbrido">Híbrido</option>

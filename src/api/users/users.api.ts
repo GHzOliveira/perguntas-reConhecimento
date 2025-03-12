@@ -17,13 +17,29 @@ export class UsersService {
    * @param userData Dados do usuário
    * @param validateSchema Se true, valida os dados dinâmicos contra o esquema ativo
    */
-  static async create(userData: Record<string, any>, validateSchema = false): Promise<User> {
+  static async create(
+    userData: Record<string, any>,
+    validateSchema = false
+  ): Promise<User> {
     try {
-      const { nome, email, filialId, companyId, respondeuForm = false, ...dynamicFields } = userData
+      const {
+        nome,
+        cidade,
+        funcaoMacro,
+        dataAdmissao,
+        genero,
+        filialId,
+        companyId,
+        respondeuForm = false,
+        ...dynamicFields
+      } = userData
 
       const payload = {
         nome,
-        email,
+        cidade,
+        funcaoMacro,
+        dataAdmissao: new Date(dataAdmissao).toISOString(),
+        genero,
         filialId: Number(filialId),
         companyId: Number(companyId),
         respondeuForm,
@@ -31,7 +47,7 @@ export class UsersService {
       }
 
       const response = await api.post<StandardResponse<User>>(
-        `/users${validateSchema ? '?validateSchema=true' : ''}`, 
+        `/users${validateSchema ? '?validateSchema=true' : ''}`,
         payload
       )
       return response.data.data
@@ -75,7 +91,10 @@ export class UsersService {
     responses: Record<number, number>
   ): Promise<void> {
     try {
-      const response = await api.post<StandardResponse<void>>(`/users/${userId}/responses`, responses)
+      const response = await api.post<StandardResponse<void>>(
+        `/users/${userId}/responses`,
+        responses
+      )
       return response.data.data
     } catch (error) {
       console.error(`Erro ao submeter respostas do usuário ${userId}:`, error)
@@ -88,7 +107,9 @@ export class UsersService {
    */
   static async fetchResponses(userId: number): Promise<any[]> {
     try {
-      const response = await api.get<StandardResponse<any[]>>(`/users/${userId}/responses`)
+      const response = await api.get<StandardResponse<any[]>>(
+        `/users/${userId}/responses`
+      )
       return response.data.data
     } catch (error) {
       console.error(`Erro ao buscar respostas do usuário ${userId}:`, error)
@@ -104,9 +125,12 @@ export class UsersService {
     responded: boolean
   ): Promise<User> {
     try {
-      const response = await api.patch<StandardResponse<User>>(`/users/${userId}/markFormAsResponded`, {
-        respondeuForm: responded
-      })
+      const response = await api.patch<StandardResponse<User>>(
+        `/users/${userId}/markFormAsResponded`,
+        {
+          respondeuForm: responded
+        }
+      )
       return response.data.data
     } catch (error) {
       console.error(
@@ -122,11 +146,13 @@ export class UsersService {
    */
   static async fetchByCompany(companyId: number): Promise<User[]> {
     try {
-      const response = await api.get<StandardResponse<User[]>>(`/users/company/${companyId}`);
-      return response.data.data;
+      const response = await api.get<StandardResponse<User[]>>(
+        `/users/company/${companyId}`
+      )
+      return response.data.data
     } catch (error) {
-      console.error('Erro ao buscar usuários da empresa:', error);
-      return [];
+      console.error('Erro ao buscar usuários da empresa:', error)
+      return []
     }
   }
 
@@ -135,7 +161,9 @@ export class UsersService {
    */
   static async checkFormResponse(userId: number): Promise<FormResponseStatus> {
     try {
-      const response = await api.get<StandardResponse<FormResponseStatus>>(`/users/${userId}/respondeuForm`)
+      const response = await api.get<StandardResponse<FormResponseStatus>>(
+        `/users/${userId}/respondeuForm`
+      )
       return response.data.data
     } catch (error) {
       console.error(
@@ -145,7 +173,7 @@ export class UsersService {
       throw error
     }
   }
-  
+
   /**
    * Busca um usuário pelo ID.
    */
@@ -158,7 +186,7 @@ export class UsersService {
       throw error
     }
   }
-  
+
   /**
    * Atualiza os dados de um usuário, incluindo campos fixos e dinâmicos.
    * @param userId ID do usuário
@@ -166,27 +194,40 @@ export class UsersService {
    * @param validateSchema Se true, valida os dados dinâmicos contra o esquema ativo
    */
   static async update(
-    userId: number, 
+    userId: number,
     userData: Partial<Record<string, any>>,
     validateSchema = false
   ): Promise<User> {
     try {
-      const { nome, email, filialId, companyId, respondeuForm, ...dynamicFields } = userData
-      
+      const {
+        nome,
+        cidade,
+        funcaoMacro,
+        dataAdmissao,
+        genero,
+        filialId,
+        companyId,
+        respondeuForm,
+        ...dynamicFields
+      } = userData
+
       const payload: Record<string, any> = {}
-      
+
       if (nome !== undefined) payload.nome = nome
-      if (email !== undefined) payload.email = email
+      if (cidade !== undefined) payload.cidade = cidade
+      if (funcaoMacro !== undefined) payload.funcaoMacro = funcaoMacro
+      if (dataAdmissao !== undefined) payload.dataAdmissao = dataAdmissao
+      if (genero !== undefined) payload.genero = genero
       if (filialId !== undefined) payload.filialId = Number(filialId)
       if (companyId !== undefined) payload.companyId = Number(companyId)
       if (respondeuForm !== undefined) payload.respondeuForm = respondeuForm
-      
+
       if (Object.keys(dynamicFields).length > 0) {
         payload.dynamicResponses = dynamicFields
       }
 
       const response = await api.patch<StandardResponse<User>>(
-        `/users/${userId}${validateSchema ? '?validateSchema=true' : ''}`, 
+        `/users/${userId}${validateSchema ? '?validateSchema=true' : ''}`,
         payload
       )
       return response.data.data
@@ -196,25 +237,28 @@ export class UsersService {
     }
   }
 
-   /**
+  /**
    * Atualiza apenas os dados dinâmicos de um usuário.
    * @param userId ID do usuário
    * @param dynamicData Dados dinâmicos a serem atualizados
    * @param validateSchema Se true, valida os dados dinâmicos contra o esquema ativo
    */
-   static async updateDynamicData(
-    userId: number, 
+  static async updateDynamicData(
+    userId: number,
     dynamicData: Record<string, any>,
     validateSchema = false
   ): Promise<User> {
     try {
       const response = await api.patch<StandardResponse<User>>(
-        `/users/${userId}/dynamic-responses${validateSchema ? '?validateSchema=true' : ''}`, 
+        `/users/${userId}/dynamic-responses${validateSchema ? '?validateSchema=true' : ''}`,
         dynamicData
       )
       return response.data.data
     } catch (error) {
-      console.error(`Erro ao atualizar dados dinâmicos do usuário ${userId}:`, error)
+      console.error(
+        `Erro ao atualizar dados dinâmicos do usuário ${userId}:`,
+        error
+      )
       throw error
     }
   }
@@ -225,10 +269,15 @@ export class UsersService {
    */
   static async fetchDynamicData(userId: number): Promise<Record<string, any>> {
     try {
-      const response = await api.get<StandardResponse<Record<string, any>>>(`/users/${userId}/dynamic-responses`)
+      const response = await api.get<StandardResponse<Record<string, any>>>(
+        `/users/${userId}/dynamic-responses`
+      )
       return response.data.data
     } catch (error) {
-      console.error(`Erro ao buscar dados dinâmicos do usuário ${userId}:`, error)
+      console.error(
+        `Erro ao buscar dados dinâmicos do usuário ${userId}:`,
+        error
+      )
       throw error
     }
   }

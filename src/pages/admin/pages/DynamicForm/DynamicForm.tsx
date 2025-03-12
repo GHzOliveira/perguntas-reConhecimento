@@ -1,43 +1,56 @@
-import { Box, Button, Flex, Heading, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, useBreakpointValue, useDisclosure } from '@chakra-ui/react';
-import AdminLayout from '../../layout/layout';
-import useCompanyStore from '../../../../store/useCompanyStore';
-import { FormTemplate } from '../../interface/form-builder.interface';
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  useBreakpointValue,
+  useDisclosure
+} from '@chakra-ui/react'
+import AdminLayout from '../../layout/layout'
+import useCompanyStore from '../../../../store/useCompanyStore'
+import { FormTemplate } from '../../interface/form-builder.interface'
 
-import { useFormState } from './hooks/useFormState';
-import { useFormFields } from './hooks/useFormFields';
-import { useFormTemplates } from './hooks/useFormTemplates';
+import { useFormState } from './hooks/useFormState'
+import { useFormFields } from './hooks/useFormFields'
+import { useFormTemplates } from './hooks/useFormTemplates'
 
-import FormHeader from './components/FormHeader';
-import FormMetadata from './components/FormMetadata';
-import FieldForm from './components/FieldForm';
-import FieldList from './components/FieldList';
-import FormActions from './components/FormActions';
-import SavedFormsList from './components/SavedFormsList';
-import DeleteConfirmModal from './components/DeleteConfirmModal';
-import FormPreview, { IdentificacaoTemplate } from './components/FormPreview';
-import { identificacaoFormTemplate } from './services/identificacaoFormTemplate';
-import { useEffect, useState } from 'react';
-import validator from '@rjsf/validator-ajv8';
-import Form from '@rjsf/core';
+import FormHeader from './components/FormHeader'
+import FormMetadata from './components/FormMetadata'
+import FieldForm from './components/FieldForm'
+import FieldList from './components/FieldList'
+import FormActions from './components/FormActions'
+import SavedFormsList from './components/SavedFormsList'
+import DeleteConfirmModal from './components/DeleteConfirmModal'
+import FormPreview, { IdentificacaoTemplate } from './components/FormPreview'
+import { identificacaoFormTemplate } from './services/identificacaoFormTemplate'
+import { useEffect, useState } from 'react'
+import validator from '@rjsf/validator-ajv8'
+import Form from '@rjsf/core'
 
 export default function DynamicForm() {
-  const paddingX = useBreakpointValue({ base: '1rem', md: '5rem' });
-  const marginTop = useBreakpointValue({ base: '1rem', md: '2rem' });
-  const { selectedCompanyId } = useCompanyStore();
-  const storedCompanyId = localStorage.getItem('globalCompanyFilter');
-  const companyId = parseInt(selectedCompanyId || storedCompanyId || '1');
-  const [previewForm, setPreviewForm] = useState<FormTemplate | null>(null);
+  const paddingX = useBreakpointValue({ base: '1rem', md: '5rem' })
+  const marginTop = useBreakpointValue({ base: '1rem', md: '2rem' })
+  const { selectedCompanyId } = useCompanyStore()
+  const storedCompanyId = localStorage.getItem('globalCompanyFilter')
+  const companyId = parseInt(selectedCompanyId ?? storedCompanyId ?? '1')
+  const [previewForm, setPreviewForm] = useState<FormTemplate | null>(null)
 
   const {
     isOpen: isPreviewOpen,
     onOpen: onPreviewOpen,
     onClose: onPreviewClose
-  } = useDisclosure();
+  } = useDisclosure()
 
   const handlePreviewForm = (form: FormTemplate) => {
-    setPreviewForm(form);
-    onPreviewOpen();
-  };
+    setPreviewForm(form)
+    onPreviewOpen()
+  }
 
   const {
     formName,
@@ -46,7 +59,7 @@ export default function DynamicForm() {
     setFormDescription,
     resetForm: resetFormMetadata,
     saveForm
-  } = useFormState();
+  } = useFormState()
 
   const {
     formFields,
@@ -69,7 +82,7 @@ export default function DynamicForm() {
     loadedForm,
     isDirty,
     setIsDirty
-  } = useFormFields(companyId);
+  } = useFormFields(companyId)
 
   const {
     savedForms,
@@ -79,18 +92,24 @@ export default function DynamicForm() {
     loadSavedForms,
     setAsDefault,
     deleteForm
-  } = useFormTemplates(companyId);
-  
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  } = useFormTemplates(companyId)
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   useEffect(() => {
     if (loadedForm && !selectedForm) {
-      setSelectedForm(loadedForm);
-      setFormName(loadedForm.name);
-      setFormDescription(loadedForm.description || '');
+      setSelectedForm(loadedForm)
+      setFormName(loadedForm.name)
+      setFormDescription(loadedForm.description ?? '')
     }
-  }, [loadedForm, selectedForm, setFormName, setFormDescription, setSelectedForm]);
-  
+  }, [
+    loadedForm,
+    selectedForm,
+    setFormName,
+    setFormDescription,
+    setSelectedForm
+  ])
+
   const handleSaveForm = async () => {
     await saveForm(
       companyId,
@@ -98,52 +117,59 @@ export default function DynamicForm() {
       uiSchema,
       selectedForm || loadedForm,
       () => {
-        loadSavedForms();
-        setIsDirty(false);
+        loadSavedForms()
+        setIsDirty(false)
         if (!selectedForm && !loadedForm) {
-          handleResetForm();
+          handleResetForm()
         }
       }
-    );
-  };
+    )
+  }
 
   const handleResetForm = () => {
-    resetFormMetadata();
-    resetCurrentField();
-    setSelectedForm(null);
-    setIsDirty(false);
+    resetFormMetadata()
+    resetCurrentField()
+    setSelectedForm(null)
+    setIsDirty(false)
 
     if (loadedForm) {
-      setFormName(loadedForm.name);
-      setFormDescription(loadedForm.description || '');
-      loadFieldsFromSchema(loadedForm.formData.schema, loadedForm.formData.uiSchema || {});
+      setFormName(loadedForm.name)
+      setFormDescription(loadedForm.description ?? '')
+      loadFieldsFromSchema(
+        loadedForm.formData.schema,
+        loadedForm.formData.uiSchema || {}
+      )
     }
-  };
+  }
 
   const handleEditForm = (form: FormTemplate) => {
-    setSelectedForm(form);
-    setFormName(form.name);
-    setFormDescription(form.description || '');
-    loadFieldsFromSchema(form.formData.schema, form.formData.uiSchema || {});
-  };
-
+    setSelectedForm(form)
+    setFormName(form.name)
+    setFormDescription(form.description ?? '')
+    loadFieldsFromSchema(form.formData.schema, form.formData.uiSchema || {})
+  }
 
   const handleDeleteForm = () => {
-    onOpen();
-  };
+    onOpen()
+  }
 
   const confirmDeleteForm = async () => {
     if (selectedForm?.id) {
-      await deleteForm(selectedForm.id);
-      onClose();
+      await deleteForm(selectedForm.id)
+      onClose()
     }
-  };
+  }
 
   const handleLoadTemplate = () => {
-    setFormName('Formulário de Identificação');
-    setFormDescription('Formulário para coleta de informações pessoais e profissionais');
-    loadFieldsFromSchema(identificacaoFormTemplate.schema, identificacaoFormTemplate.uiSchema);
-  };
+    setFormName('Formulário de Identificação')
+    setFormDescription(
+      'Formulário para coleta de informações pessoais e profissionais'
+    )
+    loadFieldsFromSchema(
+      identificacaoFormTemplate.schema,
+      identificacaoFormTemplate.uiSchema
+    )
+  }
 
   return (
     <AdminLayout>
@@ -201,9 +227,9 @@ export default function DynamicForm() {
             loading={loading}
             onEdit={handleEditForm}
             onSetDefault={setAsDefault}
-            onDelete={(form) => {
-              setSelectedForm(form);
-              onOpen();
+            onDelete={form => {
+              setSelectedForm(form)
+              onOpen()
             }}
             onPreview={handlePreviewForm}
           />
@@ -213,7 +239,7 @@ export default function DynamicForm() {
           isOpen={isOpen}
           onClose={onClose}
           onConfirm={confirmDeleteForm}
-          formName={selectedForm?.name || ''}
+          formName={selectedForm?.name ?? ''}
           isLoading={loading}
         />
 
@@ -221,7 +247,7 @@ export default function DynamicForm() {
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>
-              {previewForm?.name || 'Pré-visualização do Formulário'}
+              {previewForm?.name ?? 'Pré-visualização do Formulário'}
             </ModalHeader>
             <ModalCloseButton />
             <ModalBody pb={6}>
@@ -242,7 +268,7 @@ export default function DynamicForm() {
                       schema={previewForm.formData.schema}
                       uiSchema={previewForm.formData.uiSchema || {}}
                       validator={validator}
-                      onSubmit={() => { }}
+                      onSubmit={() => {}}
                       formData={{}}
                       templates={IdentificacaoTemplate}
                     >
@@ -263,9 +289,7 @@ export default function DynamicForm() {
             </ModalBody>
           </ModalContent>
         </Modal>
-
-
       </Flex>
     </AdminLayout>
-  );
+  )
 }

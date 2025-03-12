@@ -27,7 +27,6 @@ export default function TabelaUsuarios() {
   const toast = useToast()
 
   const padding = useBreakpointValue({ base: '4', md: '6', lg: '8' })
-  const width = useBreakpointValue({ base: '95%', md: '90%', lg: '100%' })
 
   const handleDownloadExcel = async (userId: number) => {
     try {
@@ -68,7 +67,12 @@ export default function TabelaUsuarios() {
     })
 
     try {
-      const response = await CalcService.downloadTabelaResultados()
+      if (!globalCompanyFilter) {
+        throw new Error('Nenhuma empresa selecionada')
+      }
+
+      const response =
+        await CalcService.downloadTabelaResultados(globalCompanyFilter)
       const url = window.URL.createObjectURL(response)
       const link = document.createElement('a')
       link.href = url
@@ -91,7 +95,10 @@ export default function TabelaUsuarios() {
       console.error('Failed to download Excel file', error)
       toast({
         title: 'Erro no download',
-        description: 'Não foi possível baixar o arquivo',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Não foi possível baixar o arquivo',
         status: 'error',
         duration: 3000
       })
