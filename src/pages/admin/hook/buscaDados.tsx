@@ -1,15 +1,20 @@
 import { useState, useEffect } from 'react'
-import { fetchAllUsers } from '../../../api/api'
 import { User } from '../interface/user'
+import { UsersService } from '../../../api/users/users.api'
 
-export const useFetchUsers = () => {
+export const useFetchUsers = (companyFilter?: number | null) => {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const usersData = await fetchAllUsers()
+        let usersData
+        if (companyFilter) {
+          usersData = await UsersService.fetchByCompany(companyFilter)
+        } else {
+          usersData = await UsersService.fetchAll()
+        }
         setUsers(usersData)
       } catch (error) {
         console.error('Failed to fetch users', error)
@@ -19,7 +24,7 @@ export const useFetchUsers = () => {
     }
 
     fetchUsers()
-  }, [])
+  }, [companyFilter])
 
   return { users, loading }
 }

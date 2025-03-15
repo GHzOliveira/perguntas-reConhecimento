@@ -3,41 +3,56 @@ import {
   Box,
   Text,
   Flex,
-  Container,
   VStack,
   Heading,
   useToast,
-  Spinner
+  Spinner,
+  useBreakpointValue
 } from '@chakra-ui/react'
-import {
-  dowloadExcelIndividual,
-  dowloadTabeladeResultados
-} from '../../../api/api'
 import CustomModal from '../../../components/modal/Modal'
 import { UserResponse } from '../interface/user'
 import { useFetchUsers } from '../hook/buscaDados'
 import { UserResponsesTable } from '../components/Table'
 import DownloadAllButton from '../components/DownloadAllButton'
 import UserTable from '../components/UserTable'
+import { CalcService } from '../../../api/calculo/calc.api'
+import { useGlobalCompanyFilter } from '../hook/useGlobalCompanyFilter'
 
 export default function TabelaUsuarios() {
-  const { users, loading } = useFetchUsers()
+  const globalCompanyFilter = useGlobalCompanyFilter()
+  const { users, loading } = useFetchUsers(globalCompanyFilter)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [userResponses] = useState<UserResponse[]>([])
   const [isDownloading, setIsDownloading] = useState(false)
   const toast = useToast()
 
+  const padding = useBreakpointValue({ base: '4', md: '6', lg: '8' })
+
   const handleDownloadExcel = async (userId: number) => {
     try {
-      const response = await dowloadExcelIndividual(userId)
-      const url = window.URL.createObjectURL(new Blob([response.data]))
+      setIsDownloading(true)
+      const response = await CalcService.downloadExcelIndividual(userId)
+      const url = window.URL.createObjectURL(response)
       const link = document.createElement('a')
       link.href = url
       link.setAttribute('download', 'scores.xlsx')
       document.body.appendChild(link)
       link.click()
+
+      setTimeout(() => {
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+      }, 100)
     } catch (error) {
       console.error('Failed to download Excel file', error)
+      toast({
+        title: 'Erro no download',
+        description: 'Não foi possível baixar o arquivo',
+        status: 'error',
+        duration: 3000
+      })
+    } finally {
+      setIsDownloading(false)
     }
   }
 
@@ -52,17 +67,23 @@ export default function TabelaUsuarios() {
     })
 
     try {
-      const response = await dowloadTabeladeResultados()
-      const url = window.URL.createObjectURL(new Blob([response.data]))
+      if (!globalCompanyFilter) {
+        throw new Error('Nenhuma empresa selecionada')
+      }
+
+      const response =
+        await CalcService.downloadTabelaResultados(globalCompanyFilter)
+      const url = window.URL.createObjectURL(response)
       const link = document.createElement('a')
       link.href = url
       link.setAttribute('download', 'resultados.xlsx')
       document.body.appendChild(link)
       link.click()
 
-      // Cleanup
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      setTimeout(() => {
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+      }, 100)
 
       toast.closeAll()
       toast({
@@ -74,7 +95,10 @@ export default function TabelaUsuarios() {
       console.error('Failed to download Excel file', error)
       toast({
         title: 'Erro no download',
-        description: 'Não foi possível baixar o arquivo',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Não foi possível baixar o arquivo',
         status: 'error',
         duration: 3000
       })
@@ -83,35 +107,34 @@ export default function TabelaUsuarios() {
     }
   }
 
-  if (loading) return <div>Loading...</div>
+  if (loading) return <Box p={4}>Carregando...</Box>
 
   return (
-    <Flex width="100%">
-      <Container maxW="container.xl" p={4}>
-        <VStack spacing={4} align="stretch">
+    <Box maxW="1200px" w="100%" mx="auto" p={padding}>
+      <VStack spacing={6} align="stretch" w="100%">
+        <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
           <Heading size="xl">Usuários</Heading>
-          <Box
-            display="flex"
-            justifyContent="flex-end"
-            mb={4}
-            alignItems="center"
-          >
-            <Text pr="1rem">Baixar Tabela de Resultados</Text>
+          <Flex align="center" gap={2}>
+            <Text>Baixar Tabela de Resultados</Text>
             {isDownloading ? (
-              <Spinner size="md" mr={2} />
+              <Spinner size="md" />
             ) : (
               <DownloadAllButton onClick={handleDownloadAllExcel} />
             )}
-          </Box>
+          </Flex>
+        </Flex>
+
+        <Box bg="white" borderRadius="md" shadow="sm" overflowX="auto" w="100%">
           <UserTable users={users} onDownloadExcel={handleDownloadExcel} />
-        </VStack>
-        <CustomModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          title="Respostas do Usuário"
-          body={<UserResponsesTable responses={userResponses} />}
-        />
-      </Container>
-    </Flex>
+        </Box>
+      </VStack>
+
+      <CustomModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Respostas do Usuário"
+        body={<UserResponsesTable responses={userResponses} />}
+      />
+    </Box>
   )
 }

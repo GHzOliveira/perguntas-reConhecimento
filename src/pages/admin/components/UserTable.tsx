@@ -1,13 +1,12 @@
 import { useState, useMemo, useCallback } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community'
-import { IconButton, useToast } from '@chakra-ui/react'
+import { IconButton, useToast, useBreakpointValue } from '@chakra-ui/react'
 import { PiArrowFatLineDown, PiTrash } from 'react-icons/pi'
 import { User } from '../interface/user'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
-import { deleteUser } from '../../../api/api'
-import { ColumnApi } from '@ag-grid-enterprise/all-modules'
+import { UsersService } from '../../../api/users/users.api'
 
 interface ButtonProps {
   onClick: () => void
@@ -49,11 +48,17 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
   const [loading, setLoading] = useState<boolean>(false)
   const toast = useToast()
 
+  const gridHeight = useBreakpointValue({
+    base: '20rem',
+    md: '25rem',
+    lg: '25rem'
+  })
+
   const handleDeleteUser = useCallback(
     async (userId: number) => {
       try {
         setLoading(true)
-        await deleteUser(userId)
+        await UsersService.delete(userId)
         setUserList(prevUsers => prevUsers.filter(user => user.id !== userId))
         toast({
           title: 'Usuário deletado com sucesso',
@@ -71,7 +76,7 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
         setLoading(false)
       }
     },
-    [toast]
+    [toast, setLoading]
   )
 
   const CustomButtonComponent = useCallback(
@@ -98,7 +103,15 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
     () => [
       {
         headerName: 'Nome',
-        field: 'nomeCompleto',
+        field: 'nome',
+        filter: true,
+        sortable: true,
+        flex: 2,
+        resizable: true
+      },
+      {
+        headerName: 'Filial',
+        field: 'filialId',
         filter: true,
         sortable: true,
         flex: 2,
@@ -106,15 +119,15 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
       },
       {
         headerName: 'Função',
-        field: 'funcao',
+        field: 'funcaoMacro',
         filter: true,
         sortable: true,
         flex: 1,
         resizable: true
       },
       {
-        headerName: 'Área de Trabalho',
-        field: 'areaTrabalho',
+        headerName: 'Cidade',
+        field: 'cidade',
         filter: true,
         sortable: true,
         flex: 1,
@@ -122,7 +135,7 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
       },
       {
         headerName: 'Ações',
-        field: 'id', // Mudamos para um campo que existe no User
+        field: 'id',
         flex: 1,
         cellRenderer: (params: any) => (
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -138,11 +151,13 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
     [CustomButtonComponent, CustomDeleteButtonComponent]
   )
 
-  const onGridReady = useCallback((params: GridReadyEvent) => {
-    setGridApi(params.api)
-    // Remova a linha que usa columnApi
-    params.api.sizeColumnsToFit()
-  }, [])
+  const onGridReady = useCallback(
+    (params: GridReadyEvent) => {
+      setGridApi(params.api)
+      params.api.sizeColumnsToFit()
+    },
+    [setGridApi]
+  )
 
   const defaultColDef = useMemo(
     () => ({
@@ -154,7 +169,15 @@ const UserTable = ({ users, onDownloadExcel }: UserTableProps) => {
   )
 
   return (
-    <div className="ag-theme-alpine" style={{ height: 600, width: '100%' }}>
+    <div
+      className="ag-theme-alpine"
+      style={{
+        height: gridHeight,
+        width: '100%',
+        maxWidth: '100%',
+        overflowX: 'auto'
+      }}
+    >
       <AgGridReact<User>
         rowData={userList}
         columnDefs={columnDefs}

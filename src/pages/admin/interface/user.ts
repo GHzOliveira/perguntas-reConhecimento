@@ -1,19 +1,17 @@
 export interface User {
   id: number
-  nomeCompleto: string
-  funcao: string
-  areaTrabalho: string
-  dataNascimento: string
-  email: string
-  cpf: string
-  tempoEmpresa: string
-  fillialId: number
-  genero: string
+  nome: string
   cidade: string
-  estado: string
-  pais: string
-  planilhaButton: string
-  deleteButton: string
+  funcaoMacro: string
+  dataAdmissao: string
+  genero: string
+  filialId: number
+  companyId: number
+  funcao?: string
+  respondeuForm?: boolean
+  dynamicResponses?: Record<string, any>
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export interface UserResponse {

@@ -1,115 +1,67 @@
-import {
-  Box,
-  VStack,
-  IconButton,
-  useBreakpointValue,
-  useDisclosure,
-  Drawer,
-  DrawerBody,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton
-} from '@chakra-ui/react'
-import { ReactElement, useState } from 'react'
-import {
-  PiHouse,
-  PiIdentificationBadgeLight,
-  PiTextAlignJustifyLight
-} from 'react-icons/pi'
-import { useNavigate } from 'react-router-dom'
-import Button from '../../../components/button/Button'
+import { ReactElement, memo } from 'react'
+import { NavLink } from 'react-router-dom'
+import { Box, Flex, Text, VStack } from '@chakra-ui/react'
+import { PiBuildings, PiIdentificationBadgeLight, PiPencilSimple } from 'react-icons/pi'
 
-type SidebarRoute = {
-  path: string
-  label: string
-  icon: ReactElement
+interface AdminSidebarProps {
+  onClose?: () => void
 }
 
-const sidebarRoutes: SidebarRoute[] = [
+const sidebarRoutes = [
   {
-    path: '/admin',
-    label: 'Tabela de usuários  ',
-    icon: <PiHouse style={{ marginRight: '1rem' }} />
+    path: '/admin/company-select',
+    label: 'Selecionar Empresa',
+    icon: <PiBuildings size="20px" />
   },
   {
-    path: '/admin/identificacao',
-    label: 'Identificação',
-    icon: (
-      <PiIdentificationBadgeLight
-        size={'19px'}
-        style={{ marginRight: '1rem' }}
-      />
-    )
+    path: '/admin/users',
+    label: 'Usuários',
+    icon: <PiIdentificationBadgeLight size="20px" />
+  },
+  {
+    path: '/admin/dynamic-form',
+    label: 'Formulário Dinâmico',
+    icon: <PiPencilSimple size="20px" />
   }
 ]
 
-export const Sidebar = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const navigate = useNavigate()
-  const [selected, setSelected] = useState<string>('')
-  const sidebarWidth = useBreakpointValue({ base: 'full', md: '250px' })
-  const isDrawer = useBreakpointValue({ base: true, md: false })
-  const sidebarHeight = 'calc(90vh - 60px)'
-
-  const navigateTo = (path: string): void => {
-    navigate(path)
-    setSelected(path)
-  }
-
-  const SidebarContent = (): ReactElement => (
-    <VStack align="stretch" spacing={4}>
-      {sidebarRoutes.map(({ path, label, icon }) => (
-        <Button
-          key={path}
-          variant={selected === path ? 'solid' : 'ghost'}
-          onClick={() => navigateTo(path)}
-          border={selected === path ? '#1F7CBF' : undefined}
-          bg={selected === path ? '#1F7CBF' : undefined}
-          color="black"
-          fontWeight="normal"
-        >
-          {icon}
-          {label}
-        </Button>
-      ))}
-    </VStack>
-  )
-
+const AdminSidebar = memo(({ onClose }: AdminSidebarProps): ReactElement => {
   return (
-    <>
-      {isDrawer ? (
-        <IconButton
-          icon={<PiTextAlignJustifyLight />}
-          onClick={onOpen}
-          aria-label="Open Menu"
-          size="lg"
-          m={2}
-        />
-      ) : null}
-      {isDrawer ? (
-        <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
-          <DrawerOverlay />
-          <DrawerContent>
-            <DrawerCloseButton />
-            <DrawerHeader>Menu</DrawerHeader>
-            <DrawerBody>
-              <SidebarContent />
-            </DrawerBody>
-          </DrawerContent>
-        </Drawer>
-      ) : (
-        <Box
-          w={sidebarWidth}
-          p={5}
-          bg="#FFFFFF"
-          height={sidebarHeight}
-          borderRight="1px solid #1F7CBF"
-          boxShadow="2xl"
-        >
-          <SidebarContent />
-        </Box>
-      )}
-    </>
+    <Box as="nav" w="100%" p={4}>
+      <Box mb={4} p={4} borderBottom="1px solid" borderColor="gray.200">
+        <Text fontSize="lg" fontWeight="bold">
+          Admin
+        </Text>
+      </Box>
+      <VStack align="stretch" spacing={2}>
+        {sidebarRoutes.map(({ path, label, icon }) => (
+          <NavLink
+            key={path}
+            to={path}
+            end
+            onClick={onClose}
+            style={({ isActive }) => ({
+              textDecoration: 'none',
+              width: '100%',
+              color: isActive ? '#3182ce' : '#4A5568'
+            })}
+          >
+            <Flex
+              align="center"
+              p={2}
+              borderRadius="md"
+              _hover={{ bg: 'gray.100' }}
+              bg="transparent"
+              transition="background-color 0.2s"
+            >
+              <Box mr={2}>{icon}</Box>
+              <Text fontSize="md">{label}</Text>
+            </Flex>
+          </NavLink>
+        ))}
+      </VStack>
+    </Box>
   )
-}
+})
+
+export { AdminSidebar }

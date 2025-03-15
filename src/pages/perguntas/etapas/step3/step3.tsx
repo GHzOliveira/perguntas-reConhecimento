@@ -19,8 +19,8 @@ import { perguntasEtapa3 } from '../../../../perguntas/perguntas3'
 import { useState, useEffect } from 'react'
 import { useRespostaStore } from '../../../../store/usePerguntaStore'
 import CustomModal from '../../../../components/modal/Modal'
-import { markFormAsResponded, submitUserResponse } from '../../../../api/api'
 import { useNavigate } from 'react-router-dom'
+import { UsersService } from '../../../../api/users/users.api'
 
 interface Step3Props {
   nextStep: () => void
@@ -53,8 +53,8 @@ export function Step3({ nextStep, resetToStep1 }: Step3Props) {
         if (userId) {
           const { respostas } = useRespostaStore.getState()
           try {
-            await submitUserResponse(userId, respostas)
-            await markFormAsResponded(userId, true)
+            await UsersService.submitResponse(userId, respostas)
+            await UsersService.markFormAsResponded(userId, true)
             setIsModalOpen(true)
           } catch (error) {
             console.error('Erro ao enviar respostas', error)
@@ -169,4 +169,3 @@ export function Step3({ nextStep, resetToStep1 }: Step3Props) {
     </Container>
   )
 }
-

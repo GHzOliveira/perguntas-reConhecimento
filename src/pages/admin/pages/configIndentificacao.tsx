@@ -4,7 +4,6 @@ import { GenericForm } from '../../../components/FormGeneric/FormGeneric'
 import { ICountry, IState, ICity } from 'country-state-city'
 import { useState } from 'react'
 import { Filial } from '../../../types/FormType'
-import AdminPanel from '../../identificação/components/painelADM/PainelADM'
 
 export default function ConfigIdentificacao() {
   const { visibility } = useFormVisibilityStore()
@@ -43,9 +42,6 @@ export default function ConfigIdentificacao() {
         alignItems="center"
         width="auto"
       >
-        <div>
-          <AdminPanel />
-        </div>
         <div>
           <GenericForm
             visibility={visibility}

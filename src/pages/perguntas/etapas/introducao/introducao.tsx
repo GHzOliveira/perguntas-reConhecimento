@@ -1,7 +1,7 @@
 import { Divider, Flex, Heading } from '@chakra-ui/react'
 import Botao from '../../../../components/button/Button'
 import { useEffect, useState } from 'react'
-import { checkFormResponse } from '../../../../api/api'
+import { UsersService } from '../../../../api/users/users.api'
 
 interface IntroProps {
   nextStep: () => void
@@ -14,7 +14,7 @@ function Introducao({ nextStep, userId }: IntroProps) {
   useEffect(() => {
     const fetchFormResponse = async () => {
       try {
-        const response = await checkFormResponse(userId)
+        const response = await UsersService.checkFormResponse(userId)
         setIsFormResponded(response.respondeuForm)
       } catch (error) {
         console.error('Erro ao verificar o status do formulário', error)
@@ -50,7 +50,7 @@ function Introducao({ nextStep, userId }: IntroProps) {
         Concordo e Concordo plenamente.
         <br />
         <br />
-        Por gentileza, responda até o dia 07 de julho. Muito obrigado!
+        Por gentileza, responda até o dia [DIA]. Muito obrigado!
       </p>
       <Divider />
       <Botao

@@ -9,7 +9,6 @@ export const useFormVisibilityStore = create<FormVisibilityState>(set => ({
   visibility: {
     nomeCompleto: true,
     dataNascimento: true,
-    email: true,
     cpf: true,
     tempoEmpresa: true,
     areaTrabalho: true,
